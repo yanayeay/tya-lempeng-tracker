@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit3, Trash2, DollarSign, TrendingUp, TrendingDown, Settings, Filter, X, Calendar, Tag, Lock, LogOut, Globe, BarChart3, CreditCard, Shield, Users } from 'lucide-react';
+import {
+  Plus,
+  Edit3,
+  Trash2,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Settings,
+  Filter,
+  X,
+  Calendar,
+  Tag,
+  Lock,
+  LogOut,
+  Globe,
+  BarChart3,
+  CreditCard,
+  Shield
+} from 'lucide-react';
 import { supabase } from './lib/supabase';
-import bcrypt from 'bcryptjs';
 
 const PasswordProtection = ({ onAuthenticated }) => {
   const [username, setUsername] = useState('');
@@ -35,7 +52,6 @@ const PasswordProtection = ({ onAuthenticated }) => {
       }
 
       // For demo purposes, we'll do simple password comparison
-      // In production, you'd compare with bcrypt hash
       if (password === 'TyaLempeng2024!') {
         // Update last login
         await supabase
@@ -139,7 +155,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   // Form states
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [showCategoryManager, setShowCategoryManager] = useState(false);
-  const [showUserManager, setShowUserManager] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
 
   // Filter states
@@ -187,41 +202,53 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const loadTransactions = async () => {
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error loading transactions:', error);
-    } else {
-      setTransactions(data || []);
+      if (error) {
+        console.error('Error loading transactions:', error);
+      } else {
+        setTransactions(data || []);
+      }
+    } catch (err) {
+      console.error('Error in loadTransactions:', err);
     }
   };
 
   const loadCategories = async () => {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name');
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
 
-    if (error) {
-      console.error('Error loading categories:', error);
-    } else {
-      setCategories(data || []);
+      if (error) {
+        console.error('Error loading categories:', error);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (err) {
+      console.error('Error in loadCategories:', err);
     }
   };
 
   const loadUsers = async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_date', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_date', { ascending: false });
 
-    if (error) {
-      console.error('Error loading users:', error);
-    } else {
-      setUsers(data || []);
+      if (error) {
+        console.error('Error loading users:', error);
+      } else {
+        setUsers(data || []);
+      }
+    } catch (err) {
+      console.error('Error in loadUsers:', err);
     }
   };
 
@@ -548,50 +575,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         </div>
       </div>
 
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">Filter Transactions</h3>
-            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-              <input
-                type="text" placeholder="Search description, category, amount..."
-                value={filters.searchText} onChange={(e) => updateFilter('searchText', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
-              <input
-                type="date" value={filters.dateFrom} onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
-              <input
-                type="date" value={filters.dateTo} onChange={(e) => updateFilter('dateTo', e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="flex gap-3 mt-4">
-            <button onClick={resetFilters} className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-              Reset Filters
-            </button>
-            <div className="text-sm text-gray-600 flex items-center">
-              Showing {filteredTransactions.length} of {transactions.length} transactions
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Transactions List */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b">
@@ -746,9 +729,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
           <div className="space-y-2">
             {tabs.map((tab) => {
               const IconComponent = tab.icon;
-              const canViewTab = hasPermission(tab.id, `view${tab.id.charAt(0).toUpperCase() + tab.id.slice(1)}`);
-
-              if (!canViewTab && tab.id === 'admin' && !hasPermission('admin', 'viewAdmin')) return null;
 
               return (
                 <button
