@@ -35,7 +35,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Tracker</h1>
-          <p className="text-gray-600 mt-2">🌐 Now accessible from anywhere!</p>
+          <p className="text-gray-600 mt-2">🌍 Now accessible from anywhere!</p>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
@@ -74,7 +74,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
             onClick={handleSubmit}
             className="w-full bg-yellow-600 text-white py-3 px-4 rounded-lg hover:bg-yellow-700 transition-colors font-medium"
           >
-            🔓 Login to System
+            🔐 Login to System
           </button>
         </div>
 
@@ -88,7 +88,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
           </div>
           <div className="text-xs text-gray-500 space-y-1">
             <p>🔐 Multi-user access with role-based permissions</p>
-            <p>🌐 Secure authentication system</p>
+            <p>🌍 Secure authentication system</p>
           </div>
         </div>
       </div>
