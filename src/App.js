@@ -82,7 +82,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
           <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Biz</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
@@ -170,8 +170,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         deleteTransaction: false, filterTransaction: true, exportCSV: true
       },
       admin: {
-        viewAdmin: true, manageUser: false, manageAccess: false,
-        backupData: true, importBackup: false, clearAllData: false
+        viewAdmin: true, manageUser: true, manageAccess: false,
+        backupData: true, importBackup: true, clearAllData: false
       }
     },
     'User': {
@@ -421,6 +421,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
         // Re-add default categories
         const defaultCategories = [
+          { name: 'Balance From Last Month', type: 'income' },
           { name: 'Direct Orkid', type: 'income' },
           { name: 'Direct Melur', type: 'income' },
           { name: 'Direct Cempaka', type: 'income' },
@@ -811,7 +812,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const calculateTotals = (transactionList = transactions) => {
-    const income = transactionList.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const income = transactionList
+      .filter(t => t.type === 'income' && t.category !== 'Balance From Last Month')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
     // Business expenses (excluding Ayien's personal expenses)
     const businessExpenses = transactionList
@@ -820,27 +823,45 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         !t.category.toLowerCase().includes('ayien own expenses'))
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
-    // Cash transactions balance (income minus ALL expenses including Ayien's)
-    const cashIncome = transactionList.filter(t => t.type === 'income' && t.payment_method === 'cash').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    // Cash Balance = Balance from Last Month (Cash method) + Cash Income - Cash Expenses
+    const balanceFromLastMonthCash = transactionList
+      .filter(t => t.type === 'income' && t.category === 'Balance From Last Month' && t.payment_method === 'cash')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
+    const cashIncomeOnly = transactionList
+      .filter(t => t.type === 'income' && t.payment_method === 'cash' && t.category !== 'Balance From Last Month')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
     const cashExpenses = transactionList
       .filter(t => t.type === 'expense' && t.payment_method === 'cash')
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    const cashBalance = cashIncome - cashExpenses;
 
-    // Online transactions balance (income minus ALL expenses including Ayien's)
-    const onlineIncome = transactionList.filter(t => t.type === 'income' && t.payment_method === 'online').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const cashBalance = balanceFromLastMonthCash + cashIncomeOnly - cashExpenses;
+
+    // Online Balance = Balance from Last Month (Online Transaction method) + Online Income - Online Expenses
+    const balanceFromLastMonth = transactionList
+      .filter(t => t.type === 'income' && t.category === 'Balance From Last Month' && t.payment_method === 'online')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
+    const onlineIncomeOnly = transactionList
+      .filter(t => t.type === 'income' && t.payment_method === 'online' && t.category !== 'Balance From Last Month')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
     const onlineExpenses = transactionList
       .filter(t => t.type === 'expense' && t.payment_method === 'online')
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    const onlineBalance = onlineIncome - onlineExpenses;
 
-    // Online payments from income only (including Balance From Last Month)
+    const onlineBalance = balanceFromLastMonth + onlineIncomeOnly - onlineExpenses;
+
+    // Online payments from income only (excluding Balance From Last Month)
     const onlinePayments = transactionList
-      .filter(t => t.type === 'income' && t.payment_method === 'online')
+      .filter(t => t.type === 'income' && t.payment_method === 'online' && t.category !== 'Balance From Last Month')
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
-    // Total cash transactions (both income and expenses)
-    const cashTotal = transactionList.filter(t => t.payment_method === 'cash').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    // Total cash transactions (both income and expenses, excluding Balance From Last Month)
+    const cashTotal = transactionList
+      .filter(t => t.payment_method === 'cash' && t.category !== 'Balance From Last Month')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
     const ayienSpending = transactionList.filter(t => t.category.toLowerCase().includes('ayien')).reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
     return {
@@ -851,7 +872,13 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       onlineBalance,
       onlinePayments,
       cashTotal,
-      ayienSpending
+      ayienSpending,
+      balanceFromLastMonth,
+      onlineIncomeOnly,
+      onlineExpenses,
+      balanceFromLastMonthCash,
+      cashIncomeOnly,
+      cashExpenses
     };
   };
 
@@ -877,7 +904,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const filteredTransactions = getFilteredTransactions();
-  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending } = calculateTotals(filteredTransactions);
+  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses } = calculateTotals(filteredTransactions);
   const allCategories = categories.map(c => c.name);
   const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
@@ -950,7 +977,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   <p className="text-green-600 text-sm font-medium">Total Sales</p>
                   <p className="text-3xl font-bold text-green-700">RM {income.toFixed(2)}</p>
                   <p className="text-sm text-green-600 mt-1">
-                    {transactions.filter(t => t.type === 'income').length} transactions
+                    {transactions.filter(t => t.type === 'income' && t.category !== 'Balance From Last Month').length} transactions
                   </p>
                 </div>
                 <TrendingUp className="h-12 w-12 text-green-600" />
@@ -977,9 +1004,11 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                 <div>
                   <p className={`text-sm font-medium ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>Cash Balance</p>
                   <p className={`text-3xl font-bold ${cashBalance >= 0 ? 'text-blue-700' : 'text-red-700'}`}>RM {cashBalance.toFixed(2)}</p>
-                  <p className={`text-sm mt-1 ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                    💵 {cashBalance >= 0 ? 'Cash Available' : 'Cash Deficit'}
-                  </p>
+                  <div className={`text-xs mt-1 ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    <p>Last Month: +{balanceFromLastMonthCash.toFixed(2)}</p>
+                    <p>Cash Income: +{cashIncomeOnly.toFixed(2)}</p>
+                    <p>Cash Expenses: -{cashExpenses.toFixed(2)}</p>
+                  </div>
                 </div>
                 <DollarSign className={`h-12 w-12 ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`} />
               </div>
@@ -990,9 +1019,11 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                 <div>
                   <p className={`text-sm font-medium ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`}>Online Balance</p>
                   <p className={`text-3xl font-bold ${onlineBalance >= 0 ? 'text-purple-700' : 'text-red-700'}`}>RM {onlineBalance.toFixed(2)}</p>
-                  <p className={`text-sm mt-1 ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
-                    💳 {onlineBalance >= 0 ? 'Online Available' : 'Online Deficit'}
-                  </p>
+                  <div className={`text-xs mt-1 ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                    <p>Last Month: +{balanceFromLastMonth.toFixed(2)}</p>
+                    <p>Online Income: +{onlineIncomeOnly.toFixed(2)}</p>
+                    <p>Online Expenses: -{onlineExpenses.toFixed(2)}</p>
+                  </div>
                 </div>
                 <CreditCard className={`h-12 w-12 ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`} />
               </div>
