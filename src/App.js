@@ -19,7 +19,9 @@ import {
   Shield,
   Eye,
   EyeOff,
-  Truck
+  Truck,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -83,7 +85,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
           <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Biz</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
@@ -222,12 +224,12 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   });
 
   const [formData, setFormData] = useState({
-    type: 'income',
+    type: 'expense',
     amount: '',
-    quantity: '',
+    quantity: '1',
     category: '',
     description: '',
-    paymentMethod: 'online',
+    paymentMethod: 'cash',
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -460,7 +462,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .order('name');
+        .order('sort_order', { ascending: true });
 
       if (error) {
         console.error('Error loading categories:', error);
@@ -557,26 +559,26 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         // Clear role permissions and reset to defaults
         await supabase.from('role_permissions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
-        // Re-add default categories
+        // Re-add default categories with sort order
         const defaultCategories = [
-          { name: 'Balance From Last Month', type: 'income' },
-          { name: 'Delivery', type: 'income' },
-          { name: 'Direct Orkid', type: 'income' },
-          { name: 'Direct Melur', type: 'income' },
-          { name: 'Direct Cempaka', type: 'income' },
-          { name: 'Asrap', type: 'income' },
-          { name: 'Warung Zul', type: 'income' },
-          { name: 'Gerai Kak Zura', type: 'income' },
-          { name: 'Gerai Fafau', type: 'income' },
-          { name: 'Ayien Withdraw', type: 'expense' },
-          { name: 'Ayien Own Expenses', type: 'expense' },
-          { name: 'Bawang Besar', type: 'expense' },
-          { name: 'Bawang Kecil', type: 'expense' },
-          { name: 'Bawang Rose', type: 'expense' },
-          { name: 'Minyak', type: 'expense' },
-          { name: 'Tepung', type: 'expense' },
-          { name: 'Packaging Orkid', type: 'expense' },
-          { name: 'Container Sambal Orkid', type: 'expense' }
+          { name: 'Balance From Last Month', type: 'income', sort_order: 1 },
+          { name: 'Direct Orkid', type: 'income', sort_order: 2 },
+          { name: 'Direct Melur', type: 'income', sort_order: 3 },
+          { name: 'Direct Cempaka', type: 'income', sort_order: 4 },
+          { name: 'Asrap', type: 'income', sort_order: 5 },
+          { name: 'Warung Zul', type: 'income', sort_order: 6 },
+          { name: 'Gerai Kak Zura', type: 'income', sort_order: 7 },
+          { name: 'Gerai Fafau', type: 'income', sort_order: 8 },
+          { name: 'Delivery', type: 'income', sort_order: 9 },
+          { name: 'Bawang Besar', type: 'expense', sort_order: 1 },
+          { name: 'Bawang Kecil', type: 'expense', sort_order: 2 },
+          { name: 'Bawang Rose', type: 'expense', sort_order: 3 },
+          { name: 'Minyak', type: 'expense', sort_order: 4 },
+          { name: 'Tepung', type: 'expense', sort_order: 5 },
+          { name: 'Packaging Orkid', type: 'expense', sort_order: 6 },
+          { name: 'Container Sambal Orkid', type: 'expense', sort_order: 7 },
+          { name: 'Ayien Withdraw', type: 'expense', sort_order: 8 },
+          { name: 'Ayien Own Expenses', type: 'expense', sort_order: 9 }
         ];
 
         await supabase.from('categories').insert(defaultCategories);
@@ -662,7 +664,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const resetForm = () => {
     setFormData({
-      type: 'expense', amount: '', quantity: '1', category: '', description: '', paymentMethod: 'cash',
+      type: 'income', amount: '', quantity: ' ', category: '', description: '', paymentMethod: 'online',
       date: new Date().toISOString().split('T')[0]
     });
     setEditingTransaction(null);
@@ -750,9 +752,19 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     if (!newCategory.trim()) return;
 
     try {
+      // Get the highest sort_order for this category type
+      const categoriesOfType = categories.filter(c => c.type === categoryType);
+      const maxSortOrder = categoriesOfType.length > 0
+        ? Math.max(...categoriesOfType.map(c => c.sort_order || 0))
+        : 0;
+
       const { error } = await supabase
         .from('categories')
-        .insert([{ name: newCategory, type: categoryType }]);
+        .insert([{
+          name: newCategory,
+          type: categoryType,
+          sort_order: maxSortOrder + 1
+        }]);
 
       if (error) throw error;
       await loadCategories();
@@ -821,6 +833,67 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const cancelEditCategory = () => {
     setEditingCategory(null);
     setEditCategoryValue('');
+  };
+
+  // Category sorting functions
+  const moveCategoryUp = async (categoryName, categoryType) => {
+    const categoriesOfType = categories.filter(c => c.type === categoryType);
+    const currentIndex = categoriesOfType.findIndex(c => c.name === categoryName);
+
+    if (currentIndex <= 0) return; // Already at the top
+
+    const currentCategory = categoriesOfType[currentIndex];
+    const previousCategory = categoriesOfType[currentIndex - 1];
+
+    try {
+      // Swap sort_order values
+      await supabase
+        .from('categories')
+        .update({ sort_order: previousCategory.sort_order })
+        .eq('name', currentCategory.name)
+        .eq('type', currentCategory.type);
+
+      await supabase
+        .from('categories')
+        .update({ sort_order: currentCategory.sort_order })
+        .eq('name', previousCategory.name)
+        .eq('type', previousCategory.type);
+
+      await loadCategories();
+    } catch (error) {
+      console.error('Error moving category up:', error);
+      alert('Error reordering category. Please try again.');
+    }
+  };
+
+  const moveCategoryDown = async (categoryName, categoryType) => {
+    const categoriesOfType = categories.filter(c => c.type === categoryType);
+    const currentIndex = categoriesOfType.findIndex(c => c.name === categoryName);
+
+    if (currentIndex >= categoriesOfType.length - 1) return; // Already at the bottom
+
+    const currentCategory = categoriesOfType[currentIndex];
+    const nextCategory = categoriesOfType[currentIndex + 1];
+
+    try {
+      // Swap sort_order values
+      await supabase
+        .from('categories')
+        .update({ sort_order: nextCategory.sort_order })
+        .eq('name', currentCategory.name)
+        .eq('type', currentCategory.type);
+
+      await supabase
+        .from('categories')
+        .update({ sort_order: currentCategory.sort_order })
+        .eq('name', nextCategory.name)
+        .eq('type', nextCategory.type);
+
+      await loadCategories();
+    } catch (error) {
+      console.error('Error moving category down:', error);
+      alert('Error reordering category. Please try again.');
+    }
   };
 
   // User Management Functions
@@ -2254,9 +2327,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   value={categoryType} onChange={(e) => setCategoryType(e.target.value)}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="income">Income</option>
                   <option value="expense">Expense</option>
-
+                  <option value="income">Income</option>
                 </select>
                 <input
                   type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
@@ -2270,9 +2342,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-semibold mb-3 text-green-700">Income Categories</h3>
+                <h3 className="font-semibold mb-3 text-green-700">Income Categories ({incomeCategories.length})</h3>
                 <div className="space-y-2">
-                  {incomeCategories.map(category => (
+                  {incomeCategories.map((category, index) => (
                     <div key={category} className="flex items-center gap-2 bg-green-50 p-2 rounded">
                       {editingCategory && editingCategory.category === category && editingCategory.type === 'income' ? (
                         <>
@@ -2286,6 +2358,24 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                         </>
                       ) : (
                         <>
+                          <div className="flex flex-col">
+                            <button
+                              onClick={() => moveCategoryUp(category, 'income')}
+                              disabled={index === 0}
+                              className={`p-1 rounded ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:text-green-800 hover:bg-green-100'}`}
+                              title="Move Up"
+                            >
+                              <ChevronUp className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => moveCategoryDown(category, 'income')}
+                              disabled={index === incomeCategories.length - 1}
+                              className={`p-1 rounded ${index === incomeCategories.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:text-green-800 hover:bg-green-100'}`}
+                              title="Move Down"
+                            >
+                              <ChevronDown className="h-3 w-3" />
+                            </button>
+                          </div>
                           <span className="flex-1">{category}</span>
                           <button onClick={() => startEditCategory(category, 'income')} className="text-yellow-600 hover:text-yellow-800" title="Edit">
                             <Edit3 className="h-4 w-4" />
@@ -2300,9 +2390,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-3 text-red-700">Expense Categories</h3>
+                <h3 className="font-semibold mb-3 text-red-700">Expense Categories ({expenseCategories.length})</h3>
                 <div className="space-y-2">
-                  {expenseCategories.map(category => (
+                  {expenseCategories.map((category, index) => (
                     <div key={category} className="flex items-center gap-2 bg-red-50 p-2 rounded">
                       {editingCategory && editingCategory.category === category && editingCategory.type === 'expense' ? (
                         <>
@@ -2316,6 +2406,24 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                         </>
                       ) : (
                         <>
+                          <div className="flex flex-col">
+                            <button
+                              onClick={() => moveCategoryUp(category, 'expense')}
+                              disabled={index === 0}
+                              className={`p-1 rounded ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100'}`}
+                              title="Move Up"
+                            >
+                              <ChevronUp className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => moveCategoryDown(category, 'expense')}
+                              disabled={index === expenseCategories.length - 1}
+                              className={`p-1 rounded ${index === expenseCategories.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100'}`}
+                              title="Move Down"
+                            >
+                              <ChevronDown className="h-3 w-3" />
+                            </button>
+                          </div>
                           <span className="flex-1">{category}</span>
                           <button onClick={() => startEditCategory(category, 'expense')} className="text-yellow-600 hover:text-yellow-800" title="Edit">
                             <Edit3 className="h-4 w-4" />
@@ -2357,9 +2465,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value, category: '' }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="income">Income</option>
                   <option value="expense">Expense</option>
-
+                  <option value="income">Income</option>
                 </select>
               </div>
               <div>
@@ -2411,8 +2518,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   value={formData.paymentMethod} onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="online">Online Transaction</option>
                   <option value="cash">Cash</option>
+                  <option value="online">Online Transaction</option>
                 </select>
               </div>
               <div>
