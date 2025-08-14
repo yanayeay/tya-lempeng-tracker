@@ -18,7 +18,8 @@ import {
   CreditCard,
   Shield,
   Eye,
-  EyeOff
+  EyeOff,
+  Truck
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -422,6 +423,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         // Re-add default categories
         const defaultCategories = [
           { name: 'Balance From Last Month', type: 'income' },
+          { name: 'Delivery', type: 'income' },
           { name: 'Direct Orkid', type: 'income' },
           { name: 'Direct Melur', type: 'income' },
           { name: 'Direct Cempaka', type: 'income' },
@@ -813,7 +815,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const calculateTotals = (transactionList = transactions) => {
     const income = transactionList
-      .filter(t => t.type === 'income' && t.category !== 'Balance From Last Month')
+      .filter(t => t.type === 'income' && t.category !== 'Balance From Last Month' && t.category !== 'Delivery')
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
     // Business expenses (excluding Ayien's personal expenses)
@@ -864,6 +866,11 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
     const ayienSpending = transactionList.filter(t => t.category.toLowerCase().includes('ayien')).reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
 
+    // Delivery fees tracking
+    const deliveryFees = transactionList
+      .filter(t => t.type === 'income' && t.category === 'Delivery')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
     return {
       income,
       expenses: businessExpenses,
@@ -878,7 +885,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       onlineExpenses,
       balanceFromLastMonthCash,
       cashIncomeOnly,
-      cashExpenses
+      cashExpenses,
+      deliveryFees
     };
   };
 
@@ -904,7 +912,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const filteredTransactions = getFilteredTransactions();
-  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses } = calculateTotals(filteredTransactions);
+  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = calculateTotals(filteredTransactions);
   const allCategories = categories.map(c => c.name);
   const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
@@ -924,7 +932,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   // Calculate orders data for dashboard
   const calculateOrdersData = () => {
     const incomeTransactions = transactions.filter(t => t.type === 'income');
-    const excludedCategories = ['Balance From Last Month', 'Other'];
+    const excludedCategories = ['Balance From Last Month', 'Delivery', 'Other'];
 
     // Group transactions by category and sum quantities
     const ordersByCategory = {};
@@ -977,7 +985,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   <p className="text-green-600 text-sm font-medium">Total Sales</p>
                   <p className="text-3xl font-bold text-green-700">RM {income.toFixed(2)}</p>
                   <p className="text-sm text-green-600 mt-1">
-                    {transactions.filter(t => t.type === 'income' && t.category !== 'Balance From Last Month').length} transactions
+                    {transactions.filter(t => t.type === 'income' && t.category !== 'Balance From Last Month' && t.category !== 'Delivery').length} transactions
                   </p>
                 </div>
                 <TrendingUp className="h-12 w-12 text-green-600" />
@@ -1035,7 +1043,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   <p className="text-cyan-600 text-sm font-medium">Online Payments</p>
                   <p className="text-3xl font-bold text-cyan-700">RM {onlinePayments.toFixed(2)}</p>
                   <p className="text-sm text-cyan-600 mt-1">
-                    {transactions.filter(t => t.type === 'income' && t.payment_method === 'online').length} transactions
+                    {transactions.filter(t => t.type === 'income' && t.payment_method === 'online' && t.category !== 'Balance From Last Month').length} transactions
                   </p>
                 </div>
                 <CreditCard className="h-12 w-12 text-cyan-600" />
@@ -1048,10 +1056,23 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   <p className="text-emerald-600 text-sm font-medium">Cash Payments</p>
                   <p className="text-3xl font-bold text-emerald-700">RM {cashTotal.toFixed(2)}</p>
                   <p className="text-sm text-emerald-600 mt-1">
-                    {transactions.filter(t => t.payment_method === 'cash').length} transactions
+                    {transactions.filter(t => t.payment_method === 'cash' && t.category !== 'Balance From Last Month').length} transactions
                   </p>
                 </div>
                 <DollarSign className="h-12 w-12 text-emerald-600" />
+              </div>
+            </div>
+
+            <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-600 text-sm font-medium">Delivery Fees</p>
+                  <p className="text-3xl font-bold text-orange-700">RM {deliveryFees.toFixed(2)}</p>
+                  <p className="text-sm text-orange-600 mt-1">
+                    {transactions.filter(t => t.type === 'income' && t.category === 'Delivery').length} deliveries
+                  </p>
+                </div>
+                <Truck className="h-12 w-12 text-orange-600" />
               </div>
             </div>
 
@@ -1081,6 +1102,52 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Delivery Overview Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Delivery Overview</h3>
+            <div className="bg-orange-100 px-3 py-1 rounded-full">
+              <span className="text-orange-800 text-sm font-medium">
+                Total Service Fees: RM {deliveryFees.toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          {deliveryFees === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-2">🚚 No delivery fees recorded yet!</p>
+              <p className="text-sm text-gray-400">Add delivery transactions to track your service fees</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <p className="text-2xl font-bold text-orange-700">RM {deliveryFees.toFixed(2)}</p>
+                <p className="text-sm text-orange-600">Total Fees</p>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <p className="text-2xl font-bold text-blue-700">
+                  {transactions.filter(t => t.type === 'income' && t.category === 'Delivery').length}
+                </p>
+                <p className="text-sm text-blue-600">Deliveries</p>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <p className="text-2xl font-bold text-green-700">
+                  RM {transactions.filter(t => t.type === 'income' && t.category === 'Delivery').length > 0
+                    ? (deliveryFees / transactions.filter(t => t.type === 'income' && t.category === 'Delivery').length).toFixed(2)
+                    : '0.00'}
+                </p>
+                <p className="text-sm text-green-600">Avg Fee</p>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <p className="text-2xl font-bold text-purple-700">
+                  {income > 0 ? ((deliveryFees / (income + deliveryFees)) * 100).toFixed(1) : '0.0'}%
+                </p>
+                <p className="text-sm text-purple-600">Of Total Revenue</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Orders Section */}
