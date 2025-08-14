@@ -79,8 +79,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
           <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Tracker</h1>
-          <p className="text-gray-600 mt-2">🌍 Cloud-powered with Supabase!</p>
+          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
@@ -127,13 +126,6 @@ const PasswordProtection = ({ onAuthenticated }) => {
         </div>
 
         <div className="mt-6 text-center space-y-2">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm font-medium text-blue-900">Demo Credentials:</p>
-            <div className="space-y-1">
-              <p className="text-sm text-blue-700">Username: <span className="font-mono font-bold bg-white px-2 py-1 rounded">Admin</span></p>
-              <p className="text-sm text-blue-700">Password: <span className="font-mono font-bold bg-white px-2 py-1 rounded">TyaLempeng2024!</span></p>
-            </div>
-          </div>
           <div className="text-xs text-gray-500 space-y-1">
             <p>☁️ Powered by Supabase</p>
             <p>🔐 Secure cloud authentication</p>
