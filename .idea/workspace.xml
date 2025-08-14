@@ -22,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="81" column="76" selection-start-line="81" selection-start-column="76" selection-end-line="81" selection-end-column="76" />
+            <state relative-caret-position="361">
+              <caret line="1426" column="20" lean-forward="true" selection-start-line="1426" selection-start-column="20" selection-end-line="1426" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -70,6 +70,7 @@
       <find>Tya's Lempeng</find>
       <find>Category Management</find>
       <find>Demo</find>
+      <find>Online Payment</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -217,8 +218,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="81" column="76" selection-start-line="81" selection-start-column="76" selection-end-line="81" selection-end-column="76" />
+        <state relative-caret-position="361">
+          <caret line="1426" column="20" lean-forward="true" selection-start-line="1426" selection-start-column="20" selection-end-line="1426" selection-end-column="20" />
         </state>
       </provider>
     </entry>

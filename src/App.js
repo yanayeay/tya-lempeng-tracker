@@ -51,8 +51,8 @@ const PasswordProtection = ({ onAuthenticated }) => {
         return;
       }
 
-      // For demo purposes, we'll do simple password comparison
-      if (password === 'TyaLempeng2024!') {
+      // Compare with stored password (in production, you'd use bcrypt.compare)
+      if (password === users.password_hash) {
         // Update last login
         await supabase
           .from('users')
@@ -79,7 +79,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
           <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Biz</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
@@ -796,11 +796,47 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const calculateTotals = (transactionList = transactions) => {
     const income = transactionList.filter(t => t.type === 'income').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    const expenses = transactionList.filter(t => t.type === 'expense').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    const onlineTotal = transactionList.filter(t => t.payment_method === 'online').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
+    // Business expenses (excluding Ayien's personal expenses)
+    const businessExpenses = transactionList
+      .filter(t => t.type === 'expense' &&
+        !t.category.toLowerCase().includes('ayien withdraw') &&
+        !t.category.toLowerCase().includes('ayien own expenses'))
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
+    // Cash transactions balance (income minus ALL expenses including Ayien's)
+    const cashIncome = transactionList.filter(t => t.type === 'income' && t.payment_method === 'cash').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const cashExpenses = transactionList
+      .filter(t => t.type === 'expense' && t.payment_method === 'cash')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const cashBalance = cashIncome - cashExpenses;
+
+    // Online transactions balance (income minus ALL expenses including Ayien's)
+    const onlineIncome = transactionList.filter(t => t.type === 'income' && t.payment_method === 'online').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const onlineExpenses = transactionList
+      .filter(t => t.type === 'expense' && t.payment_method === 'online')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+    const onlineBalance = onlineIncome - onlineExpenses;
+
+    // Online payments from income only (including Balance From Last Month)
+    const onlinePayments = transactionList
+      .filter(t => t.type === 'income' && t.payment_method === 'online')
+      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
+
+    // Total cash transactions (both income and expenses)
     const cashTotal = transactionList.filter(t => t.payment_method === 'cash').reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
     const ayienSpending = transactionList.filter(t => t.category.toLowerCase().includes('ayien')).reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    return { income, expenses, balance: income - expenses, onlineTotal, cashTotal, ayienSpending };
+
+    return {
+      income,
+      expenses: businessExpenses,
+      balance: income - businessExpenses,
+      cashBalance,
+      onlineBalance,
+      onlinePayments,
+      cashTotal,
+      ayienSpending
+    };
   };
 
   const exportToCSV = () => {
@@ -825,7 +861,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const filteredTransactions = getFilteredTransactions();
-  const { income, expenses, balance, onlineTotal, cashTotal, ayienSpending } = calculateTotals(filteredTransactions);
+  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending } = calculateTotals(filteredTransactions);
   const allCategories = categories.map(c => c.name);
   const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
@@ -891,7 +927,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-green-50 p-6 rounded-lg border border-green-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -908,65 +944,93 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             <div className="bg-red-50 p-6 rounded-lg border border-red-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-red-600 text-sm font-medium">Total Expenses</p>
+                  <p className="text-red-600 text-sm font-medium">Business Expenses</p>
                   <p className="text-3xl font-bold text-red-700">RM {expenses.toFixed(2)}</p>
                   <p className="text-sm text-red-600 mt-1">
-                    {transactions.filter(t => t.type === 'expense').length} transactions
+                    {transactions.filter(t => t.type === 'expense' &&
+                      !t.category.toLowerCase().includes('ayien withdraw') &&
+                      !t.category.toLowerCase().includes('ayien own expenses')).length} transactions
                   </p>
                 </div>
                 <TrendingDown className="h-12 w-12 text-red-600" />
               </div>
             </div>
 
-            <div className={`p-6 rounded-lg border ${balance >= 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
+            <div className={`p-6 rounded-lg border ${cashBalance >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm font-medium ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>Net Balance</p>
-                  <p className={`text-3xl font-bold ${balance >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>RM {balance.toFixed(2)}</p>
-                  <p className={`text-sm mt-1 ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {balance >= 0 ? '💰 Profit' : '⚠️ Loss'}
+                  <p className={`text-sm font-medium ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>Cash Balance</p>
+                  <p className={`text-3xl font-bold ${cashBalance >= 0 ? 'text-blue-700' : 'text-red-700'}`}>RM {cashBalance.toFixed(2)}</p>
+                  <p className={`text-sm mt-1 ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    💵 {cashBalance >= 0 ? 'Cash Available' : 'Cash Deficit'}
                   </p>
                 </div>
-                <DollarSign className={`h-12 w-12 ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`} />
+                <DollarSign className={`h-12 w-12 ${cashBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`} />
               </div>
             </div>
 
-            <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <div className={`p-6 rounded-lg border ${onlineBalance >= 0 ? 'bg-purple-50 border-purple-200' : 'bg-red-50 border-red-200'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-600 text-sm font-medium">Online Payments</p>
-                  <p className="text-3xl font-bold text-blue-700">RM {onlineTotal.toFixed(2)}</p>
-                  <p className="text-sm text-blue-600 mt-1">
-                    {transactions.filter(t => t.payment_method === 'online').length} transactions
+                  <p className={`text-sm font-medium ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`}>Online Balance</p>
+                  <p className={`text-3xl font-bold ${onlineBalance >= 0 ? 'text-purple-700' : 'text-red-700'}`}>RM {onlineBalance.toFixed(2)}</p>
+                  <p className={`text-sm mt-1 ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`}>
+                    💳 {onlineBalance >= 0 ? 'Online Available' : 'Online Deficit'}
                   </p>
                 </div>
-                <CreditCard className="h-12 w-12 text-blue-600" />
+                <CreditCard className={`h-12 w-12 ${onlineBalance >= 0 ? 'text-purple-600' : 'text-red-600'}`} />
               </div>
             </div>
 
-            <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+            <div className="bg-cyan-50 p-6 rounded-lg border border-cyan-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-600 text-sm font-medium">Cash Payments</p>
-                  <p className="text-3xl font-bold text-green-700">RM {cashTotal.toFixed(2)}</p>
-                  <p className="text-sm text-green-600 mt-1">
+                  <p className="text-cyan-600 text-sm font-medium">Online Payments</p>
+                  <p className="text-3xl font-bold text-cyan-700">RM {onlinePayments.toFixed(2)}</p>
+                  <p className="text-sm text-cyan-600 mt-1">
+                    {transactions.filter(t => t.type === 'income' && t.payment_method === 'online').length} transactions
+                  </p>
+                </div>
+                <CreditCard className="h-12 w-12 text-cyan-600" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50 p-6 rounded-lg border border-emerald-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-emerald-600 text-sm font-medium">Cash Payments</p>
+                  <p className="text-3xl font-bold text-emerald-700">RM {cashTotal.toFixed(2)}</p>
+                  <p className="text-sm text-emerald-600 mt-1">
                     {transactions.filter(t => t.payment_method === 'cash').length} transactions
                   </p>
                 </div>
-                <DollarSign className="h-12 w-12 text-green-600" />
+                <DollarSign className="h-12 w-12 text-emerald-600" />
               </div>
             </div>
 
-            <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+            <div className="bg-amber-50 p-6 rounded-lg border border-amber-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-600 text-sm font-medium">Ayien's Expenses</p>
-                  <p className="text-3xl font-bold text-purple-700">RM {ayienSpending.toFixed(2)}</p>
-                  <p className="text-sm text-purple-600 mt-1">
+                  <p className="text-amber-600 text-sm font-medium">Ayien's Expenses</p>
+                  <p className="text-3xl font-bold text-amber-700">RM {ayienSpending.toFixed(2)}</p>
+                  <p className="text-sm text-amber-600 mt-1">
                     {transactions.filter(t => t.category.toLowerCase().includes('ayien')).length} transactions
                   </p>
                 </div>
-                <Settings className="h-12 w-12 text-purple-600" />
+                <Settings className="h-12 w-12 text-amber-600" />
+              </div>
+            </div>
+
+            <div className={`p-6 rounded-lg border ${balance >= 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>Total Net Balance</p>
+                  <p className={`text-3xl font-bold ${balance >= 0 ? 'text-yellow-700' : 'text-red-700'}`}>RM {balance.toFixed(2)}</p>
+                  <p className={`text-sm mt-1 ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    💰 {balance >= 0 ? 'Business Profit' : 'Business Loss'}
+                  </p>
+                </div>
+                <TrendingUp className={`h-12 w-12 ${balance >= 0 ? 'text-yellow-600' : 'text-red-600'}`} />
               </div>
             </div>
           </div>
@@ -1108,7 +1172,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
           </div>
           <div className="text-center p-3 bg-red-50 rounded-lg">
             <p className="text-2xl font-bold text-red-700">RM {expenses.toFixed(0)}</p>
-            <p className="text-sm text-red-600">Total Expenses</p>
+            <p className="text-sm text-red-600">Business Expenses</p>
           </div>
           <div className="text-center p-3 bg-yellow-50 rounded-lg">
             <p className="text-2xl font-bold text-yellow-700">RM {balance.toFixed(0)}</p>
@@ -1352,7 +1416,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         </div>
         <div className="mt-4">
           <p className="text-sm font-medium text-gray-700 mb-2">Recent Users</p>
-          <div className="space-y-1 max-h-24 overflow-y-auto">
+          <div className="space-y-1 max-h-40 overflow-y-auto">
             {users.slice(0, 5).map(user => (
               <div key={user.id} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
                 <span className="font-medium">{user.username}</span>
@@ -1379,7 +1443,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         <div className="mt-4 grid md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm font-medium text-green-700 mb-2">Income Categories ({incomeCategories.length})</p>
-            <div className="bg-green-50 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <div className="bg-green-50 rounded-lg p-3 max-h-50 overflow-y-auto">
               <div className="text-sm text-green-800 space-y-1">
                 {incomeCategories.map(cat => <div key={cat}>• {cat}</div>)}
               </div>
@@ -1387,7 +1451,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
           </div>
           <div>
             <p className="text-sm font-medium text-red-700 mb-2">Expense Categories ({expenseCategories.length})</p>
-            <div className="bg-red-50 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <div className="bg-red-50 rounded-lg p-3 max-h-50 overflow-y-auto">
               <div className="text-sm text-red-800 space-y-1">
                 {expenseCategories.map(cat => <div key={cat}>• {cat}</div>)}
               </div>
