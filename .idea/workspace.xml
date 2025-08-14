@@ -22,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="617">
-              <caret line="975" column="19" selection-start-line="975" selection-start-column="19" selection-end-line="975" selection-end-column="19" />
+            <state relative-caret-position="590">
+              <caret line="2020" column="19" selection-start-line="2020" selection-start-column="19" selection-end-line="2020" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -41,7 +41,7 @@
         <entry file="file://$PROJECT_DIR$/.env.local">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
-              <caret line="1" column="236" lean-forward="true" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="236" />
+              <caret line="1" column="236" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="236" />
             </state>
           </provider>
         </entry>
@@ -82,7 +82,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="221" />
     <option name="y" value="62" />
     <option name="width" value="1750" />
@@ -207,14 +207,14 @@
     <entry file="file://$PROJECT_DIR$/.env.local">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="1" column="236" lean-forward="true" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="236" />
+          <caret line="1" column="236" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="236" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="975" column="19" selection-start-line="975" selection-start-column="19" selection-end-line="975" selection-end-column="19" />
+        <state relative-caret-position="590">
+          <caret line="2020" column="19" selection-start-line="2020" selection-start-column="19" selection-end-line="2020" selection-end-column="19" />
         </state>
       </provider>
     </entry>
