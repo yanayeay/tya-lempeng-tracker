@@ -22,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="361">
-              <caret line="1426" column="20" lean-forward="true" selection-start-line="1426" selection-start-column="20" selection-end-line="1426" selection-end-column="20" />
+            <state relative-caret-position="590">
+              <caret line="2219" column="19" selection-start-line="2219" selection-start-column="19" selection-end-line="2219" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -71,6 +71,8 @@
       <find>Category Management</find>
       <find>Demo</find>
       <find>Online Payment</find>
+      <find>Transaction</find>
+      <find>Orders Summary</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -87,7 +89,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="221" />
     <option name="y" value="62" />
     <option name="width" value="1750" />
@@ -218,8 +220,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="1426" column="20" lean-forward="true" selection-start-line="1426" selection-start-column="20" selection-end-line="1426" selection-end-column="20" />
+        <state relative-caret-position="590">
+          <caret line="2219" column="19" selection-start-line="2219" selection-start-column="19" selection-end-line="2219" selection-end-column="19" />
         </state>
       </provider>
     </entry>

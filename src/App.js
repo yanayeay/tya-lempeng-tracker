@@ -16,7 +16,9 @@ import {
   Globe,
   BarChart3,
   CreditCard,
-  Shield
+  Shield,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
@@ -25,6 +27,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async () => {
     if (!username || !password) {
@@ -99,15 +102,25 @@ const PasswordProtection = ({ onAuthenticated }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-center text-lg"
-              placeholder="Enter your password"
-              disabled={loading}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !loading && handleSubmit()}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-center text-lg"
+                placeholder="Enter your password"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -128,7 +141,7 @@ const PasswordProtection = ({ onAuthenticated }) => {
         <div className="mt-6 text-center space-y-2">
           <div className="text-xs text-gray-500 space-y-1">
             <p>☁️ Powered by Supabase</p>
-            <p>🔐 Secure cloud authentication</p>
+            <p>🔒 Secure cloud authentication</p>
           </div>
         </div>
       </div>
@@ -231,6 +244,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   });
   const [editingUser, setEditingUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState('Administrator');
+  const [showUserPassword, setShowUserPassword] = useState(false);
 
   // Navigation tabs configuration
   const tabs = [
@@ -677,6 +691,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       active: true
     });
     setEditingUser(null);
+    setShowUserPassword(false);
   };
 
   const handleUserSubmit = async () => {
@@ -732,6 +747,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       role: user.role,
       active: user.active
     });
+    setShowUserPassword(false);
   };
 
   const handleDeleteUser = async (userId) => {
@@ -1475,7 +1491,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             )}
             {hasPermission('admin', 'importBackup') && (
               <label className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 transition-colors cursor-pointer">
-                📁 Import Backup
+                📂 Import Backup
                 <input type="file" accept=".json" onChange={importBackup} className="hidden" />
               </label>
             )}
@@ -1843,13 +1859,22 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   onChange={(e) => setUserForm(prev => ({ ...prev, username: e.target.value }))}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={userForm.password}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, password: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <input
+                    type={showUserPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={userForm.password}
+                    onChange={(e) => setUserForm(prev => ({ ...prev, password: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowUserPassword(!showUserPassword)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    {showUserPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <select
                   value={userForm.role}
                   onChange={(e) => setUserForm(prev => ({ ...prev, role: e.target.value }))}
