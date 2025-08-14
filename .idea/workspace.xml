@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,7 +20,7 @@
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="208">
-              <caret line="666" column="46" selection-start-line="666" selection-start-column="46" selection-end-line="666" selection-end-column="46" />
+              <caret line="30" column="36" selection-start-line="30" selection-start-column="28" selection-end-line="30" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -63,6 +64,8 @@
       <find>formData</find>
       <find>useEffec</find>
       <find>type:</find>
+      <find>setFormData</find>
+      <find>useState</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -204,7 +207,7 @@
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="208">
-          <caret line="666" column="46" selection-start-line="666" selection-start-column="46" selection-end-line="666" selection-end-column="46" />
+          <caret line="30" column="36" selection-start-line="30" selection-start-column="28" selection-end-line="30" selection-end-column="36" />
         </state>
       </provider>
     </entry>

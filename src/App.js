@@ -224,12 +224,12 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   });
 
   const [formData, setFormData] = useState({
-    type: 'expense',
+    type: 'income',
     amount: '',
-    quantity: '1',
+    quantity: ' ',
     category: '',
     description: '',
-    paymentMethod: 'cash',
+    paymentMethod: 'online',
     date: new Date().toISOString().split('T')[0]
   });
 
