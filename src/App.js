@@ -171,8 +171,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         deleteTransaction: false, filterTransaction: true, exportCSV: true
       },
       admin: {
-        viewAdmin: true, manageUser: true, manageAccess: false,
-        backupData: true, importBackup: true, clearAllData: false
+        viewAdmin: true, manageUser: false, manageAccess: false,
+        backupData: true, importBackup: false, clearAllData: false
       }
     },
     'User': {
@@ -187,6 +187,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       }
     }
   });
+  const [permissionsLoading, setPermissionsLoading] = useState(true);
 
   // Access Control Functions
   const hasPermission = (category, permission) => {
@@ -287,6 +288,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   // Load data on component mount
   useEffect(() => {
     loadAllData();
+    loadRolePermissions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -302,6 +304,138 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       console.error('Error loading data:', error);
     }
     setLoading(false);
+  };
+
+  // Role Permissions Database Functions
+  const loadRolePermissions = async () => {
+    setPermissionsLoading(true);
+    try {
+      console.log('Loading role permissions from database...');
+
+      const { data, error } = await supabase
+        .from('role_permissions')
+        .select('*');
+
+      console.log('Load permissions result:', { data, error });
+
+      if (error) {
+        console.error('Error loading role permissions:', error);
+        if (error.code === '42P01') {
+          console.log('Table role_permissions does not exist. Using default permissions.');
+          alert('Role permissions table not found. Please create the database table first. Using default permissions for now.');
+        }
+        // Keep default permissions if database load fails
+        setPermissionsLoading(false);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        console.log(`Loaded ${data.length} permission records from database`);
+
+        // Convert flat database records to nested permission object
+        const permissionsFromDB = {};
+
+        data.forEach(record => {
+          if (!permissionsFromDB[record.role]) {
+            permissionsFromDB[record.role] = {};
+          }
+          if (!permissionsFromDB[record.role][record.category]) {
+            permissionsFromDB[record.role][record.category] = {};
+          }
+          permissionsFromDB[record.role][record.category][record.permission] = record.value;
+        });
+
+        console.log('Permissions from DB:', permissionsFromDB);
+
+        // Merge with defaults to ensure all permissions exist
+        const mergedPermissions = { ...rolePermissions };
+        Object.keys(permissionsFromDB).forEach(role => {
+          if (mergedPermissions[role]) {
+            Object.keys(permissionsFromDB[role]).forEach(category => {
+              if (mergedPermissions[role][category]) {
+                Object.keys(permissionsFromDB[role][category]).forEach(permission => {
+                  mergedPermissions[role][category][permission] = permissionsFromDB[role][category][permission];
+                });
+              }
+            });
+          }
+        });
+
+        console.log('Final merged permissions:', mergedPermissions);
+        setRolePermissions(mergedPermissions);
+      } else {
+        console.log('No permission records found in database. Using defaults.');
+      }
+    } catch (err) {
+      console.error('Error loading role permissions:', err);
+      alert(`Error loading permissions: ${err.message}. Using default permissions.`);
+    }
+    setPermissionsLoading(false);
+  };
+
+  const saveRolePermissionToDB = async (role, category, permission, value) => {
+    try {
+      console.log(`Attempting to save: ${role}.${category}.${permission} = ${value}`);
+
+      // First try to update existing record
+      const { data: existingData, error: fetchError } = await supabase
+        .from('role_permissions')
+        .select('id')
+        .eq('role', role)
+        .eq('category', category)
+        .eq('permission', permission)
+        .single();
+
+      console.log('Fetch result:', { existingData, fetchError });
+
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Fetch error:', fetchError);
+        throw fetchError;
+      }
+
+      if (existingData) {
+        // Update existing record
+        console.log('Updating existing record:', existingData.id);
+        const { error: updateError } = await supabase
+          .from('role_permissions')
+          .update({ value: value })
+          .eq('id', existingData.id);
+
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw updateError;
+        }
+        console.log('Update successful');
+      } else {
+        // Insert new record
+        console.log('Inserting new record');
+        const { error: insertError } = await supabase
+          .from('role_permissions')
+          .insert([{
+            role: role,
+            category: category,
+            permission: permission,
+            value: value
+          }]);
+
+        if (insertError) {
+          console.error('Insert error:', insertError);
+          throw insertError;
+        }
+        console.log('Insert successful');
+      }
+
+      console.log(`✅ Saved permission: ${role}.${category}.${permission} = ${value}`);
+    } catch (error) {
+      console.error('❌ Error saving role permission:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      alert(`Error saving permission changes: ${error.message || 'Unknown error'}. Check console for details.`);
+    }
   };
 
   const loadTransactions = async () => {
@@ -420,6 +554,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         // Clear categories and re-add defaults
         await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
+        // Clear role permissions and reset to defaults
+        await supabase.from('role_permissions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
         // Re-add default categories
         const defaultCategories = [
           { name: 'Balance From Last Month', type: 'income' },
@@ -446,6 +583,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
         // Reload data
         await loadAllData();
+        await loadRolePermissions(); // Reload permissions to defaults
         alert('All data cleared and reset to defaults!');
       } catch (error) {
         console.error('Error clearing data:', error);
@@ -806,6 +944,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         }
       }
     }));
+
+    // Save to database
+    saveRolePermissionToDB(selectedRole, category, permission, value);
   };
 
   const resetAccessManager = () => {
@@ -918,12 +1059,14 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
   const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your financial data...</p>
+          <p className="mt-4 text-gray-600">
+            {loading ? 'Loading your financial data...' : 'Loading access permissions...'}
+          </p>
         </div>
       </div>
     );
@@ -1927,7 +2070,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <div className="text-sm text-gray-500">
-                Changes are saved automatically when you modify permissions
+                <p>✅ Changes are automatically saved to the database</p>
+                <p className="text-xs text-gray-400 mt-1">All users will see permission updates immediately</p>
               </div>
               <button
                 onClick={resetAccessManager}
@@ -2110,8 +2254,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   value={categoryType} onChange={(e) => setCategoryType(e.target.value)}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="expense">Expense</option>
                   <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+
                 </select>
                 <input
                   type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
@@ -2212,8 +2357,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value, category: '' }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="expense">Expense</option>
                   <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+
                 </select>
               </div>
               <div>
@@ -2265,8 +2411,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                   value={formData.paymentMethod} onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                 >
-                  <option value="cash">Cash</option>
                   <option value="online">Online Transaction</option>
+                  <option value="cash">Cash</option>
                 </select>
               </div>
               <div>
