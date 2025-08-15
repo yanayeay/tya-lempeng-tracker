@@ -17,7 +17,6 @@ import {
   BarChart3,
   CreditCard,
   Shield,
-  ShoppingCart,
   Eye,
   EyeOff,
   Truck,
@@ -162,10 +161,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         viewTransactions: true, addTransaction: true, editTransaction: true,
         deleteTransaction: true, filterTransaction: true, exportCSV: true
       },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: true,
-          deleteOrder: true, filterOrder: true, exportOrderCSV: true
-      },
       admin: {
         viewAdmin: true, manageUser: true, manageAccess: true,
         backupData: true, importBackup: true, clearAllData: true
@@ -177,10 +172,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         viewTransactions: true, addTransaction: true, editTransaction: true,
         deleteTransaction: false, filterTransaction: true, exportCSV: true
       },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: true,
-          deleteOrder: false, filterOrder: true, exportOrderCSV: true
-      },
       admin: {
         viewAdmin: true, manageUser: false, manageAccess: false,
         backupData: true, importBackup: false, clearAllData: false
@@ -191,10 +182,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       transactions: {
         viewTransactions: true, addTransaction: true, editTransaction: false,
         deleteTransaction: false, filterTransaction: true, exportCSV: false
-      },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: false,
-          deleteOrder: false, filterOrder: true, exportOrderCSV: false
       },
       admin: {
         viewAdmin: false, manageUser: false, manageAccess: false,
@@ -263,32 +250,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const [selectedRole, setSelectedRole] = useState('Administrator');
   const [showUserPassword, setShowUserPassword] = useState(false);
 
-  //Order management states
-  const [orders, setOrders] = useState([]);
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [showOrderFilters, setShowOrderFilters] = useState(false);
-  const [editingOrder, setEditingOrder] = useState(null);
-
-  const [orderFilters, setOrderFilters] = useState({
-    dateFrom: '',
-    dateTo: '',
-    sets: [],
-    paymentStatus: [],
-    searchText: ''
-  });
-
-  const [orderFormData, setOrderFormData] = useState({
-    name: '',
-    orderDate: new Date().toISOString().split('T')[0],
-    deliveryDate: '',
-    set: '',
-    quantity: '',
-    time: '',
-    delivery: false,
-    deliveryAddress: '',
-    paymentStatus: 'Unpaid', remarks: ''
-  });
-
   // Navigation tabs configuration
   const tabs = [
     {
@@ -296,12 +257,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       name: 'Dashboard',
       icon: BarChart3,
       description: 'Overview & Analytics'
-    },
-    {
-        id: 'orders',           // ADD THIS ENTIRE OBJECT
-        name: 'Orders',
-        icon: ShoppingCart,
-        description: 'Manage Orders'
     },
     {
       id: 'transactions',
@@ -322,7 +277,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     const canViewCurrentTab =
       (activeTab === 'dashboard' && hasPermission('dashboard', 'viewDashboard')) ||
       (activeTab === 'transactions' && hasPermission('transactions', 'viewTransactions')) ||
-      (activeTab === 'orders' && hasPermission('orders', 'viewOrders')) ||
       (activeTab === 'admin' && hasPermission('admin', 'viewAdmin'));
 
     if (!canViewCurrentTab) {
@@ -346,8 +300,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       await Promise.all([
         loadTransactions(),
         loadCategories(),
-        loadUsers(),
-        loadOrders()
+        loadUsers()
       ]);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -535,104 +488,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       }
     } catch (err) {
       console.error('Error in loadUsers:', err);
-    }
-  };
-
-  const loadOrders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('order_date', { ascending: false });
-      if (error) {
-        console.error('Error loading orders:', error);
-      } else {
-        setOrders(data || []);
-      }
-    } catch (err) {
-      console.error('Error in loadOrders:', err);
-    }
-  };
-
-  const resetOrderForm = () => {
-    setOrderFormData({
-      name: '',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      set: '',
-      quantity: '',
-      time: '',
-      delivery: false,
-      deliveryAddress: '',
-      paymentStatus: 'Unpaid',
-      remarks: ''
-    });
-    setEditingOrder(null);
-  };
-
-  const handleOrderSubmit = async () => {
-    if (!orderFormData.name || !orderFormData.set || !orderFormData.quantity || !orderFormData.time) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    const orderData = {
-      name: orderFormData.name,
-      order_date: orderFormData.orderDate,
-      delivery_date: orderFormData.deliveryDate || null,
-      set: orderFormData.set,
-      quantity: parseInt(orderFormData.quantity),
-      time: orderFormData.time,
-      delivery: orderFormData.delivery,
-      delivery_address: orderFormData.deliveryAddress || null,
-      payment_status: orderFormData.paymentStatus,
-      remarks: orderFormData.remarks
-    };
-
-    try {
-      if (editingOrder) {
-        const { error } = await supabase.from('orders').update(orderData).eq('id', editingOrder.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('orders').insert([orderData]);
-        if (error) throw error;
-      }
-      await loadOrders();
-      resetOrderForm();
-      setShowOrderForm(false);
-    } catch (error) {
-      console.error('Error saving order:', error);
-      alert('Error saving order. Please try again.');
-    }
-  };
-
-  const handleEditOrder = (order) => {
-    setEditingOrder(order);
-    setOrderFormData({
-      name: order.name,
-      orderDate: order.order_date,
-      deliveryDate: order.delivery_date || '',
-      set: order.set,
-      quantity: order.quantity.toString(),
-      time: order.time,
-      delivery: order.delivery,
-      deliveryAddress: order.delivery_address || '',
-      paymentStatus: order.payment_status,
-      remarks: order.remarks || ''
-    });
-    setShowOrderForm(true);
-  };
-
-  const handleDeleteOrder = async (id) => {
-    if (window.confirm('Are you sure you want to delete this order?')) {
-      try {
-        const { error } = await supabase.from('orders').delete().eq('id', id);
-        if (error) throw error;
-        await loadOrders();
-      } catch (error) {
-        console.error('Error deleting order:', error);
-        alert('Error deleting order. Please try again.');
-      }
     }
   };
 
@@ -1839,88 +1694,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     </div>
   );
 
-  //ORDER COMPONENT
-  const OrdersTab = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex flex-wrap gap-3 mb-4">
-          {hasPermission('orders', 'addOrder') && (
-            <button onClick={() => setShowOrderForm(true)} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors">
-              <Plus className="h-4 w-4" /> Add Order
-            </button>
-          )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="text-center p-3 bg-blue-50 rounded-lg">
-            <p className="text-2xl font-bold text-blue-700">{orders.length}</p>
-            <p className="text-sm text-blue-600">Total Orders</p>
-          </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-700">{orders.filter(o => o.payment_status === 'Paid').length}</p>
-            <p className="text-sm text-green-600">Paid Orders</p>
-          </div>
-          <div className="text-center p-3 bg-yellow-50 rounded-lg">
-            <p className="text-2xl font-bold text-yellow-700">{orders.filter(o => o.payment_status === 'Unpaid').length}</p>
-            <p className="text-sm text-yellow-600">Pending Payment</p>
-          </div>
-          <div className="text-center p-3 bg-purple-50 rounded-lg">
-            <p className="text-2xl font-bold text-purple-700">{orders.reduce((sum, o) => sum + o.quantity, 0)}</p>
-            <p className="text-sm text-purple-600">Total Units</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-6 border-b">
-          <h3 className="text-lg font-bold">Orders</h3>
-        </div>
-        <div className="p-6">
-          {orders.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">🎉 Start managing your orders!</p>
-              <p className="text-sm text-gray-400">Add your first order to get started</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date)).map(order => (
-                <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                      <div>
-                        <p className="font-medium">{order.name}</p>
-                        <p className="text-sm text-gray-600">
-                          {order.set} • Qty: {order.quantity} • {order.time} • {order.order_date}
-                          {order.delivery && <span className="text-blue-600"> • 🚚 Delivery</span>}
-                        </p>
-                        {order.remarks && <p className="text-xs text-gray-500 mt-1">📝 {order.remarks}</p>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.payment_status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {order.payment_status}
-                    </span>
-                    {hasPermission('orders', 'editOrder') && (
-                      <button onClick={() => handleEditOrder(order)} className="text-yellow-600 hover:text-yellow-800" title="Edit Order">
-                        <Edit3 className="h-4 w-4" />
-                      </button>
-                    )}
-                    {hasPermission('orders', 'deleteOrder') && (
-                      <button onClick={() => handleDeleteOrder(order.id)} className="text-red-600 hover:text-red-800" title="Delete Order">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
   // ADMIN COMPONENT
   const AdminTab = () => (
     <div className="space-y-6">
@@ -2106,7 +1879,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
               const canViewTab =
                 (tab.id === 'dashboard' && hasPermission('dashboard', 'viewDashboard')) ||
                 (tab.id === 'transactions' && hasPermission('transactions', 'viewTransactions')) ||
-                (tab.id === 'orders' && hasPermission('orders', 'viewOrders')) ||
                 (tab.id === 'admin' && hasPermission('admin', 'viewAdmin'));
 
               if (!canViewTab) return null;
@@ -2176,93 +1948,10 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         {/* Page Content */}
         <div className="flex-1 p-6">
           {activeTab === 'dashboard' && <DashboardTab />}
-          {activeTab === 'orders' && <OrdersTab />}
           {activeTab === 'transactions' && <TransactionsTab />}
           {activeTab === 'admin' && <AdminTab />}
         </div>
       </div>
-
-      {/* Order Form Modal */}
-      {showOrderForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">{editingOrder ? 'Edit Order' : 'Add New Order'}</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
-                <input type="text" value={orderFormData.name} onChange={(e) => setOrderFormData(prev => ({ ...prev, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter customer name" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Order Date *</label>
-                <input type="date" value={orderFormData.orderDate} onChange={(e) => setOrderFormData(prev => ({ ...prev, orderDate: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
-                <input
-                  type="date"
-                  value={orderFormData.deliveryDate}
-                  onChange={(e) => setOrderFormData(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Lempeng Set *</label>
-                <select value={orderFormData.set} onChange={(e) => setOrderFormData(prev => ({ ...prev, set: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required>
-                  <option value="">Select a set</option>
-                  <option value="Orkid">Orkid</option>
-                  <option value="Melur">Melur</option>
-                  <option value="Cempaka">Cempaka</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                <input type="number" min="1" value={orderFormData.quantity} onChange={(e) => setOrderFormData(prev => ({ ...prev, quantity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter quantity" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time *</label>
-                <input type="time" value={orderFormData.time} onChange={(e) => setOrderFormData(prev => ({ ...prev, time: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required />
-              </div>
-              <div>
-                <label className="flex items-center space-x-2">
-                  <input type="checkbox" checked={orderFormData.delivery} onChange={(e) => setOrderFormData(prev => ({ ...prev, delivery: e.target.checked }))} className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
-                  <span className="text-sm font-medium text-gray-700">Delivery Required</span>
-                </label>
-                {/* Delivery Conditional Textbox */}
-                  {orderFormData.delivery && (
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        value={orderFormData.deliveryAddress}
-                        onChange={(e) => setOrderFormData(prev => ({ ...prev, deliveryAddress: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                        placeholder="Enter delivery address"
-                      />
-                    </div>
-                  )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status *</label>
-                <select value={orderFormData.paymentStatus} onChange={(e) => setOrderFormData(prev => ({ ...prev, paymentStatus: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required>
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
-                <textarea value={orderFormData.remarks} onChange={(e) => setOrderFormData(prev => ({ ...prev, remarks: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter any additional notes" rows="3" />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={handleOrderSubmit} className="flex-1 bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-                  {editingOrder ? 'Update Order' : 'Add Order'}
-                </button>
-                <button onClick={() => { setShowOrderForm(false); resetOrderForm(); }} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Access Manager Modal */}
       {showAccessManager && (
