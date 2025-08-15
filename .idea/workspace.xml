@@ -18,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="1634" column="156" selection-start-line="1634" selection-start-column="150" selection-end-line="1634" selection-end-column="156" />
+            <state relative-caret-position="412">
+              <caret line="1966" column="18" selection-start-line="1966" selection-start-column="18" selection-end-line="1966" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -37,11 +37,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>$</find>
-      <find>RM</find>
-      <find>Ayien</find>
-      <find>text</find>
-      <find>supabase</find>
       <find>demo</find>
       <find>Tya's Lempeng</find>
       <find>Category Management</find>
@@ -67,6 +62,11 @@
       <find>permission</find>
       <find>orderFormData</find>
       <find>export</find>
+      <find>filter</find>
+      <find>exportTo</find>
+      <find>Orkid</find>
+      <find>Sambal</find>
+      <find>&lt;div className=&quot;grid grid-cols-2</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -83,7 +83,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="220" />
     <option name="y" value="60" />
     <option name="width" value="1750" />
@@ -150,7 +150,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="7" />
+    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2671141" />
@@ -207,8 +207,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="1634" column="156" selection-start-line="1634" selection-start-column="150" selection-end-line="1634" selection-end-column="156" />
+        <state relative-caret-position="412">
+          <caret line="1966" column="18" selection-start-line="1966" selection-start-column="18" selection-end-line="1966" selection-end-column="18" />
         </state>
       </provider>
     </entry>
