@@ -1921,8 +1921,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   //ORDER COMPONENT
   const OrdersTab = () => {
-    //const filteredOrders = getFilteredOrders();
-
     return (
       <div className="space-y-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -2074,36 +2072,78 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             ) : (
               <div className="space-y-3">
                 {filteredOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date)).map(order => (
-                  <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                        <div>
-                          <p className="font-medium">{order.name}</p>
-                          <p className="text-sm text-gray-600">
-                            {order.set} • Qty: {order.quantity} • {order.time} • {order.order_date}
-                            {order.delivery && <span className="text-blue-600"> • 🚚 Delivery</span>}
-                          </p>
-                          {order.delivery_date && <p className="text-xs text-gray-500">📅 Delivery: {order.delivery_date}</p>}
-                          {order.delivery_address && <p className="text-xs text-gray-500">📍 {order.delivery_address}</p>}
-                          {order.remarks && <p className="text-xs text-gray-500 mt-1">📝 {order.remarks}</p>}
+                  <div key={order.id} className="border rounded-lg hover:bg-gray-50 p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className={`w-3 h-3 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                          <h4 className="font-semibold text-lg text-gray-900">{order.name}</h4>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4 text-sm">
+                          <div className="space-y-2">
+                            <div>
+                              <span className="font-medium text-gray-700">Lempeng Set:</span>
+                              <span className="ml-2 text-gray-900">{order.set}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Quantity:</span>
+                              <span className="ml-2 text-gray-900">{order.quantity}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Time:</span>
+                              <span className="ml-2 text-gray-900">{order.time}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Order Date:</span>
+                              <span className="ml-2 text-gray-900">{order.order_date}</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            {order.delivery_date && (
+                              <div>
+                                <span className="font-medium text-gray-700">Delivery Date:</span>
+                                <span className="ml-2 text-gray-900">{order.delivery_date}</span>
+                              </div>
+                            )}
+                            {order.delivery && order.delivery_address && (
+                              <div>
+                                <span className="font-medium text-gray-700">Delivery Address:</span>
+                                <span className="ml-2 text-gray-900">{order.delivery_address}</span>
+                              </div>
+                            )}
+                            {order.delivery && !order.delivery_address && (
+                              <div>
+                                <span className="font-medium text-blue-700">🚚 Delivery Required</span>
+                                <span className="ml-2 text-gray-500">(No address specified)</span>
+                              </div>
+                            )}
+                            {order.remarks && (
+                              <div>
+                                <span className="font-medium text-gray-700">Remarks:</span>
+                                <span className="ml-2 text-gray-900">{order.remarks}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.payment_status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {order.payment_status}
-                      </span>
-                      {hasPermission('orders', 'editOrder') && (
-                        <button onClick={() => handleEditOrder(order)} className="text-yellow-600 hover:text-yellow-800" title="Edit Order">
-                          <Edit3 className="h-4 w-4" />
-                        </button>
-                      )}
-                      {hasPermission('orders', 'deleteOrder') && (
-                        <button onClick={() => handleDeleteOrder(order.id)} className="text-red-600 hover:text-red-800" title="Delete Order">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
+
+                      <div className="flex items-center gap-3 ml-4">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${order.payment_status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {order.payment_status}
+                        </span>
+                        {hasPermission('orders', 'editOrder') && (
+                          <button onClick={() => handleEditOrder(order)} className="text-yellow-600 hover:text-yellow-800" title="Edit Order">
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                        )}
+                        {hasPermission('orders', 'deleteOrder') && (
+                          <button onClick={() => handleDeleteOrder(order.id)} className="text-red-600 hover:text-red-800" title="Delete Order">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -2379,7 +2419,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       {/* Order Form Modal */}
       {showOrderForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">{editingOrder ? 'Edit Order' : 'Add New Order'}</h2>
             <div className="space-y-4">
               <div>
