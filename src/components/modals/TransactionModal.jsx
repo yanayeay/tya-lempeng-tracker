@@ -21,15 +21,16 @@ const TransactionModal = ({
   // Update form when editing transaction changes
   useEffect(() => {
     if (editingTransaction) {
-      setFormData({
-        type: editingTransaction.type,
-        amount: editingTransaction.amount.toString(),
-        quantity: editingTransaction.quantity ? editingTransaction.quantity.toString() : '1',
-        category: editingTransaction.category,
-        description: editingTransaction.description,
-        paymentMethod: editingTransaction.payment_method,
-        date: editingTransaction.date
-      });
+        const formDataToSet = {
+            type: editingTransaction.type || 'income',
+            amount: editingTransaction.amount ? editingTransaction.amount.toString() : '',
+            quantity: editingTransaction.quantity ? editingTransaction.quantity.toString() : '1',
+            category: editingTransaction.category || '',
+            description: editingTransaction.description || '',
+            paymentMethod: editingTransaction.payment_method || 'online',
+            date: editingTransaction.date || new Date().toISOString().split('T')[0]
+            };
+        setFormData(formDataToSet);
     } else {
       setFormData({
         type: 'income',

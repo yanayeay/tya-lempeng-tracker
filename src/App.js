@@ -228,7 +228,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const handleOrderSubmit = async (orderFormData) => {
-    console.log('🚀 handleOrderSubmit called with:', orderFormData);
     if (!orderFormData.name || !orderFormData.set || !orderFormData.quantity || !orderFormData.time) {
       alert('Please fill in all required fields');
       return;
@@ -511,7 +510,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   // 🎉 Simplified transaction handlers using the hook
-  const handleSubmit = async () => {
+  const handleSubmit = async (formData) => {
     if (!formData.amount || !formData.category || !formData.quantity) return;
 
     const success = editingTransaction
@@ -1160,7 +1159,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         <div className="flex flex-wrap gap-3 mb-4">
           {hasPermission('transactions', 'addTransaction') && (
             <button
-              onClick={() => openTransactionModal()}>
+              onClick={() => openTransactionModal()}
               className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -1371,7 +1370,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                       {transaction.type === 'income' ? '+' : '-'}RM {(transaction.total_amount || transaction.amount).toFixed(2)}
                     </span>
                     {hasPermission('transactions', 'editTransaction') && (
-                      <button onClick={() => handleEdit(transaction.id)} className="text-yellow-600 hover:text-yellow-800" title="Edit Transaction">
+                      <button onClick={() => handleEdit(transaction)} className="text-yellow-600 hover:text-yellow-800" title="Edit Transaction">
                         <Edit3 className="h-4 w-4" />
                       </button>
                     )}
