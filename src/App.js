@@ -26,6 +26,8 @@ import {
 import { supabase } from './lib/supabase';
 import { useAuth } from './hooks/useAuth';
 import AuthWrapper from './components/auth/AuthWrapper';
+import { useTransactions } from './hooks/useTransactions';
+import { calculateTransactionTotals, calculateOrdersData } from './utils/calculations';
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
   // Access Control Management - Define this first
@@ -87,7 +89,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -209,16 +210,15 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   // Load data on component mount
   useEffect(() => {
-    loadAllData();
+    loadOtherData();
     loadRolePermissions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadAllData = async () => {
+  const loadOtherData = async () => {
     setLoading(true);
     try {
       await Promise.all([
-        loadTransactions(),
         loadCategories(),
         loadUsers(),
         loadOrders()
@@ -361,22 +361,16 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     }
   };
 
-  const loadTransactions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .order('date', { ascending: false });
-
-      if (error) {
-        console.error('Error loading transactions:', error);
-      } else {
-        setTransactions(data || []);
-      }
-    } catch (err) {
-      console.error('Error in loadTransactions:', err);
-    }
-  };
+  // 🎉 Use transaction hook instead of managing state manually
+  const {
+    transactions,
+    loading: transactionsLoading,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    clearAllTransactions,
+    error: transactionError
+  } = useTransactions();
 
   const loadCategories = async () => {
     try {
@@ -619,8 +613,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const clearAllData = async () => {
     if (window.confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       try {
-        // Clear transactions
-        await supabase.from('transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        // Clear transactions using service
+        await clearAllTransactions();
 
         // Clear categories and re-add defaults
         await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
@@ -653,7 +647,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         await supabase.from('categories').insert(defaultCategories);
 
         // Reload data
-        await loadAllData();
+        await loadOtherData();
         await loadRolePermissions(); // Reload permissions to defaults
         alert('All data cleared and reset to defaults!');
       } catch (error) {
@@ -717,7 +711,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             })));
           }
 
-          await loadAllData();
+          await loadOtherData();
           alert('Backup imported successfully!');
         } else {
           alert('Invalid backup file format.');
@@ -739,50 +733,17 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     setEditingTransaction(null);
   };
 
-  // Transaction operations
+  // 🎉 Simplified transaction handlers using the hook
   const handleSubmit = async () => {
     if (!formData.amount || !formData.category || !formData.quantity) return;
 
-    const unitAmount = parseFloat(formData.amount);
-    const quantity = parseFloat(formData.quantity);
-    if (unitAmount <= 0 || quantity <= 0) return;
+    const success = editingTransaction
+      ? await updateTransaction(editingTransaction.id, formData)
+      : await addTransaction(formData);
 
-    const totalAmount = unitAmount * quantity;
-
-    const transactionData = {
-      type: formData.type,
-      amount: unitAmount,
-      quantity: quantity,
-      total_amount: totalAmount,
-      category: formData.category,
-      description: formData.description,
-      payment_method: formData.paymentMethod,
-      date: formData.date
-      // Removed created_by field since column doesn't exist
-    };
-
-    try {
-      if (editingTransaction) {
-        const { error } = await supabase
-          .from('transactions')
-          .update(transactionData)
-          .eq('id', editingTransaction.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('transactions')
-          .insert([transactionData]);
-
-        if (error) throw error;
-      }
-
-      await loadTransactions();
+    if (success) {
       resetForm();
       setShowTransactionForm(false);
-    } catch (error) {
-      console.error('Error saving transaction:', error);
-      alert('Error saving transaction. Please try again.');
     }
   };
 
@@ -802,18 +763,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
-      try {
-        const { error } = await supabase
-          .from('transactions')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        await loadTransactions();
-      } catch (error) {
-        console.error('Error deleting transaction:', error);
-        alert('Error deleting transaction. Please try again.');
-      }
+      await deleteTransaction(id);
     }
   };
 
@@ -890,7 +840,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
       if (transactionError) throw transactionError;
 
-      await Promise.all([loadCategories(), loadTransactions()]);
+      await Promise.all([loadCategories()]);
       setEditingCategory(null);
       setEditCategoryValue('');
     } catch (error) {
@@ -1096,83 +1046,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     setShowAccessManager(false);
   };
 
-  const calculateTotals = (transactionList = transactions) => {
-    const income = transactionList
-      .filter(t => t.type === 'income' && t.category !== 'Balance From Last Month' && t.category !== 'Delivery')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    // Business expenses (excluding Ayien's personal expenses)
-    const businessExpenses = transactionList
-      .filter(t => t.type === 'expense' &&
-        !t.category.toLowerCase().includes('ayien withdraw') &&
-        !t.category.toLowerCase().includes('ayien own expenses'))
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    // Cash Balance = Balance from Last Month (Cash method) + Cash Income - Cash Expenses
-    const balanceFromLastMonthCash = transactionList
-      .filter(t => t.type === 'income' && t.category === 'Balance From Last Month' && t.payment_method === 'cash')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const cashIncomeOnly = transactionList
-      .filter(t => t.type === 'income' && t.payment_method === 'cash' && t.category !== 'Balance From Last Month')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const cashExpenses = transactionList
-      .filter(t => t.type === 'expense' && t.payment_method === 'cash')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const cashBalance = balanceFromLastMonthCash + cashIncomeOnly - cashExpenses;
-
-    // Online Balance = Balance from Last Month (Online Transaction method) + Online Income - Online Expenses
-    const balanceFromLastMonth = transactionList
-      .filter(t => t.type === 'income' && t.category === 'Balance From Last Month' && t.payment_method === 'online')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const onlineIncomeOnly = transactionList
-      .filter(t => t.type === 'income' && t.payment_method === 'online' && t.category !== 'Balance From Last Month')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const onlineExpenses = transactionList
-      .filter(t => t.type === 'expense' && t.payment_method === 'online')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    const onlineBalance = balanceFromLastMonth + onlineIncomeOnly - onlineExpenses;
-
-    // Online payments from income only (excluding Balance From Last Month)
-    const onlinePayments = transactionList
-      .filter(t => t.type === 'income' && t.payment_method === 'online' && t.category !== 'Balance From Last Month')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    // Total cash transactions (both income and expenses, excluding Balance From Last Month)
-    const cashTotal = transactionList
-      .filter(t => t.payment_method === 'cash' && t.category !== 'Balance From Last Month')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-    const ayienSpending = transactionList.filter(t => t.category.toLowerCase().includes('ayien')).reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    // Delivery fees tracking
-    const deliveryFees = transactionList
-      .filter(t => t.type === 'income' && t.category === 'Delivery')
-      .reduce((sum, t) => sum + (t.total_amount || t.amount), 0);
-
-    return {
-      income,
-      expenses: businessExpenses,
-      balance: income - businessExpenses,
-      cashBalance,
-      onlineBalance,
-      onlinePayments,
-      cashTotal,
-      ayienSpending,
-      balanceFromLastMonth,
-      onlineIncomeOnly,
-      onlineExpenses,
-      balanceFromLastMonthCash,
-      cashIncomeOnly,
-      cashExpenses,
-      deliveryFees
-    };
-  };
-
   const exportToCSV = () => {
     const headers = ['Date', 'Type', 'Category', 'Description', 'Unit Amount', 'Quantity', 'Total Amount', 'Payment Method'];
     const csvContent = [
@@ -1225,13 +1098,15 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const filteredTransactions = getFilteredTransactions();
   const filteredOrders = getFilteredOrders();
-  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = calculateTotals(filteredTransactions);
+  // 🎉 NEW: Simplified calculations using utility functions
+  const totals = calculateTransactionTotals(filteredTransactions);
+  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = totals;
   const allCategories = categories.map(c => c.name);
   const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
   const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
-  if (loading || permissionsLoading) {
+  if (loading || permissionsLoading || transactionsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -1245,37 +1120,11 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   }
 
   // Calculate orders data for dashboard
-  const calculateOrdersData = () => {
-    const incomeTransactions = transactions.filter(t => t.type === 'income');
-    const excludedCategories = ['Balance From Last Month', 'Delivery', 'Other'];
 
-    // Group transactions by category and sum quantities
-    const ordersByCategory = {};
-
-    incomeTransactions.forEach(transaction => {
-      const category = transaction.category;
-
-      // Skip excluded categories
-      if (excludedCategories.includes(category)) return;
-
-      const quantity = parseFloat(transaction.quantity) || 1;
-
-      if (ordersByCategory[category]) {
-        ordersByCategory[category] += quantity;
-      } else {
-        ordersByCategory[category] = quantity;
-      }
-    });
-
-    // Convert to array and sort by quantity (highest first)
-    return Object.entries(ordersByCategory)
-      .map(([category, qty]) => ({ category, quantity: qty }))
-      .sort((a, b) => b.quantity - a.quantity);
-  };
 
   // DASHBOARD COMPONENT
   const DashboardTab = () => {
-    const ordersData = calculateOrdersData();
+    const ordersData = calculateOrdersData(transactions);
     const totalItemsSold = ordersData.reduce((sum, order) => sum + order.quantity, 0);
 
     return (
@@ -2877,6 +2726,12 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             <h2 className="text-xl font-bold mb-4">
               {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
             </h2>
+            
+            {transactionError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p className="text-red-600 text-sm">{transactionError}</p>
+              </div>
+            )}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
