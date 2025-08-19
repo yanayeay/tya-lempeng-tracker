@@ -31,6 +31,8 @@ import { calculateTransactionTotals, calculateOrdersData } from './utils/calcula
 import { usePermissions } from './hooks/usePermissions';
 import { TAB_CONFIGURATION } from './config/tabs';
 import { checkTabAccess, getDefaultTab } from './utils/permissions';
+import { useModals } from './hooks/useModals';
+import { TransactionModal, OrderModal } from './components/modals';
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
   // Use permission hook instead of managing state manually
@@ -48,18 +50,22 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     return checkUserPermission(currentUser?.role, category, permission);
   };
 
+  const {
+    showTransactionForm,
+    showOrderForm,
+    openTransactionModal,
+    closeTransactionModal,
+    openOrderModal,
+    closeOrderModal,
+    editingTransaction,
+    editingOrder
+  } = useModals();
+
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Form states
-  const [showTransactionForm, setShowTransactionForm] = useState(false);
-  const [showCategoryManager, setShowCategoryManager] = useState(false);
-  const [showUserManager, setShowUserManager] = useState(false);
-  const [showAccessManager, setShowAccessManager] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState(null);
 
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
@@ -95,15 +101,13 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     role: 'User',
     active: true
   });
-  const [editingUser, setEditingUser] = useState(null);
+
   const [selectedRole, setSelectedRole] = useState('Administrator');
   const [showUserPassword, setShowUserPassword] = useState(false);
 
   //Order management states
   const [orders, setOrders] = useState([]);
-  const [showOrderForm, setShowOrderForm] = useState(false);
   const [showOrderFilters, setShowOrderFilters] = useState(false);
-  const [editingOrder, setEditingOrder] = useState(null);
 
   const [orderFilters, setOrderFilters] = useState({
     dateFrom: '',
@@ -113,22 +117,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     searchText: ''
   });
 
-  const [orderFormData, setOrderFormData] = useState({
-    name: '',
-    orderDate: new Date().toISOString().split('T')[0],
-    deliveryDate: '',
-    set: '',
-    quantity: '',
-    time: '',
-    delivery: false,
-    deliveryAddress: '',
-    paymentStatus: 'Unpaid', remarks: ''
-  });
-
   // 🎉 NEW: Use configuration instead of inline definition
   const tabs = TAB_CONFIGURATION;
 
-  // Check if current tab is accessible, redirect if not
   // 🎉 Simplified tab access checking
   useEffect(() => {
     if (!permissionsLoading && currentUser) {
@@ -223,23 +214,8 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     }
   };
 
-  const resetOrderForm = () => {
-    setOrderFormData({
-      name: '',
-      orderDate: new Date().toISOString().split('T')[0],
-      deliveryDate: '',
-      set: '',
-      quantity: '',
-      time: '',
-      delivery: false,
-      deliveryAddress: '',
-      paymentStatus: 'Unpaid',
-      remarks: ''
-    });
-    setEditingOrder(null);
-  };
-
-  const handleOrderSubmit = async () => {
+  const handleOrderSubmit = async (orderFormData) => {
+    console.log('🚀 handleOrderSubmit called with:', orderFormData);
     if (!orderFormData.name || !orderFormData.set || !orderFormData.quantity || !orderFormData.time) {
       alert('Please fill in all required fields');
       return;
@@ -266,30 +242,18 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         const { error } = await supabase.from('orders').insert([orderData]);
         if (error) throw error;
       }
+
       await loadOrders();
-      resetOrderForm();
-      setShowOrderForm(false);
+      closeOrderModal();
+
     } catch (error) {
-      console.error('Error saving order:', error);
+      console.error('❌ Error saving order:', error);
       alert('Error saving order. Please try again.');
     }
   };
 
   const handleEditOrder = (order) => {
-    setEditingOrder(order);
-    setOrderFormData({
-      name: order.name,
-      orderDate: order.order_date,
-      deliveryDate: order.delivery_date || '',
-      set: order.set,
-      quantity: order.quantity.toString(),
-      time: order.time,
-      delivery: order.delivery,
-      deliveryAddress: order.delivery_address || '',
-      paymentStatus: order.payment_status,
-      remarks: order.remarks || ''
-    });
-    setShowOrderForm(true);
+    openOrderModal(order);
   };
 
   const handleDeleteOrder = async (id) => {
@@ -548,17 +512,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const handleEdit = (transaction) => {
-    setEditingTransaction(transaction);
-    setFormData({
-      type: transaction.type,
-      amount: transaction.amount.toString(),
-      quantity: transaction.quantity ? transaction.quantity.toString() : '1',
-      category: transaction.category,
-      description: transaction.description,
-      paymentMethod: transaction.payment_method,
-      date: transaction.date
-    });
-    setShowTransactionForm(true);
+    openTransactionModal(transaction);
   };
 
   const handleDelete = async (id) => {
@@ -827,7 +781,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const resetAccessManager = () => {
     setSelectedRole('Administrator');
-    setShowAccessManager(false);
+    closeAccessModal();
   };
 
   const exportToCSV = () => {
@@ -1193,7 +1147,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         <div className="flex flex-wrap gap-3 mb-4">
           {hasPermission('transactions', 'addTransaction') && (
             <button
-              onClick={() => setShowTransactionForm(true)}
+              onClick={() => openTransactionModal()}>
               className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -1404,7 +1358,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                       {transaction.type === 'income' ? '+' : '-'}RM {(transaction.total_amount || transaction.amount).toFixed(2)}
                     </span>
                     {hasPermission('transactions', 'editTransaction') && (
-                      <button onClick={() => handleEdit(transaction)} className="text-yellow-600 hover:text-yellow-800" title="Edit Transaction">
+                      <button onClick={() => handleEdit(transaction.id)} className="text-yellow-600 hover:text-yellow-800" title="Edit Transaction">
                         <Edit3 className="h-4 w-4" />
                       </button>
                     )}
@@ -1684,7 +1638,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             )}
             {hasPermission('admin', 'manageAccess') && (
               <button
-                onClick={() => setShowAccessManager(true)}
+                onClick={() => openAccessModal()}
                 className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2 transition-colors"
               >
                 <Shield className="h-4 w-4" />
@@ -1835,8 +1789,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             <Globe className="h-5 w-5 text-green-600" />
             <span className="text-sm text-green-600 font-medium">Online</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Tya's Lempeng</h1>
-          <p className="text-sm text-gray-600">Financial Tracker</p>
+          <h1 className="text-xl font-bold text-gray-900">Tya's Lempeng Biz Tracker</h1>
         </div>
 
         <nav className="p-4">
@@ -1924,682 +1877,30 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       </div>
 
       {/* Order Form Modal */}
-      {showOrderForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">{editingOrder ? 'Edit Order' : 'Add New Order'}</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>
-                <input type="text" value={orderFormData.name} onChange={(e) => setOrderFormData(prev => ({ ...prev, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter customer name" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Order Date *</label>
-                <input type="date" value={orderFormData.orderDate} onChange={(e) => setOrderFormData(prev => ({ ...prev, orderDate: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
-                <input
-                  type="date"
-                  value={orderFormData.deliveryDate}
-                  onChange={(e) => setOrderFormData(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Lempeng Set *</label>
-                <select value={orderFormData.set} onChange={(e) => setOrderFormData(prev => ({ ...prev, set: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required>
-                  <option value="">Select a set</option>
-                  <option value="Orkid">Orkid</option>
-                  <option value="Melur">Melur</option>
-                  <option value="Cempaka">Cempaka</option>
-                  <option value="Sambal">Sambal</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                <input type="number" min="1" value={orderFormData.quantity} onChange={(e) => setOrderFormData(prev => ({ ...prev, quantity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter quantity" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time *</label>
-                <input type="time" value={orderFormData.time} onChange={(e) => setOrderFormData(prev => ({ ...prev, time: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required />
-              </div>
-              <div>
-                <label className="flex items-center space-x-2">
-                  <input type="checkbox" checked={orderFormData.delivery} onChange={(e) => setOrderFormData(prev => ({ ...prev, delivery: e.target.checked }))} className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
-                  <span className="text-sm font-medium text-gray-700">Delivery Required</span>
-                </label>
-                {/* Delivery Conditional Textbox */}
-                  {orderFormData.delivery && (
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        value={orderFormData.deliveryAddress}
-                        onChange={(e) => setOrderFormData(prev => ({ ...prev, deliveryAddress: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                        placeholder="Enter delivery address"
-                      />
-                    </div>
-                  )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status *</label>
-                <select value={orderFormData.paymentStatus} onChange={(e) => setOrderFormData(prev => ({ ...prev, paymentStatus: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required>
-                  <option value="Unpaid">Unpaid</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
-                <textarea value={orderFormData.remarks} onChange={(e) => setOrderFormData(prev => ({ ...prev, remarks: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Enter any additional notes" rows="3" />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={handleOrderSubmit} className="flex-1 bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-                  {editingOrder ? 'Update Order' : 'Add Order'}
-                </button>
-                <button onClick={() => { setShowOrderForm(false); resetOrderForm(); }} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <OrderModal
+        isOpen={showOrderForm}
+        onClose={closeOrderModal}
+        editingOrder={editingOrder}
+        onSubmit={handleOrderSubmit}
+      />
 
       {/* Access Manager Modal */}
-      {showAccessManager && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Role-Based Access Control</h2>
 
-            {/* Role Selection */}
-            <div className="border-b pb-4 mb-6">
-              <h3 className="font-semibold mb-3">Select Role to Manage</h3>
-              <div className="flex items-center gap-4">
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg font-medium"
-                >
-                  <option value="Administrator">Administrator</option>
-                  <option value="Manager">Manager</option>
-                  <option value="User">User</option>
-                </select>
-                <div className="text-sm text-gray-600">
-                  Configure permissions for <span className="font-medium text-purple-600">{selectedRole}</span> role
-                </div>
-              </div>
-            </div>
-
-            {/* Permissions Grid */}
-            <div className="space-y-6">
-              {/* Dashboard Permissions */}
-              <div className="border rounded-lg p-4">
-                <h4 className="font-semibold text-green-700 mb-3 flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Dashboard Permissions
-                </h4>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.dashboard?.viewDashboard || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'dashboard', 'viewDashboard', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">View Dashboard Page</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Transaction Permissions */}
-              <div className="border rounded-lg p-4">
-                <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Transaction Permissions
-                </h4>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.viewTransactions || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'viewTransactions', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">View Transaction Page</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.addTransaction || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'addTransaction', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Add Transaction</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.editTransaction || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'editTransaction', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Edit Transaction</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.deleteTransaction || false}
-                      onChange={(e) => updateRolePermission('transactions', 'deleteTransaction', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Delete Transaction</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.filterTransaction || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'filterTransaction', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Filter Transaction</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.transactions?.exportCSV || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'exportCSV', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Export CSV</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Admin Permissions */}
-              <div className="border rounded-lg p-4">
-                <h4 className="font-semibold text-red-700 mb-3 flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Admin Permissions
-                </h4>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.viewAdmin || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'viewAdmin', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">View Admin Page</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.manageUser || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'manageUser', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Manage User</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.manageAccess || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'manageAccess', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Manage Access</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.backupData || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'backupData', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Backup Data</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.importBackup || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'importBackup', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Import Backup</span>
-                  </label>
-                  <label className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={rolePermissions[selectedRole]?.admin?.clearAllData || false}
-                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'clearAllData', e.target.checked)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium">Clear All Data</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Permission Summary */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold mb-2">Permission Summary for {selectedRole}:</h4>
-              <div className="text-sm text-gray-600">
-                <p>
-                  <strong>Dashboard:</strong> {Object.values(rolePermissions[selectedRole]?.dashboard || {}).filter(Boolean).length} permission(s) •
-                  <strong> Transactions:</strong> {Object.values(rolePermissions[selectedRole]?.transactions || {}).filter(Boolean).length} permission(s) •
-                  <strong> Admin:</strong> {Object.values(rolePermissions[selectedRole]?.admin || {}).filter(Boolean).length} permission(s)
-                </p>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-between mt-6">
-              <div className="text-sm text-gray-500">
-                <p>✅ Changes are automatically saved to the database</p>
-                <p className="text-xs text-gray-400 mt-1">All users will see permission updates immediately</p>
-              </div>
-              <button
-                onClick={resetAccessManager}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* User Manager Modal */}
-      {showUserManager && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">User Management</h2>
 
-            {/* Add/Edit User Section */}
-            <div className="border-b pb-4 mb-4">
-              <h3 className="font-semibold mb-3">{editingUser ? 'Edit User' : 'Add New User'}</h3>
-              <div className="grid md:grid-cols-4 gap-3">
-                <input
-                  type="text"
-                  placeholder="Username"
-                  value={userForm.username}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, username: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="relative">
-                  <input
-                    type={showUserPassword ? "text" : "password"}
-                    placeholder="Password"
-                    value={userForm.password}
-                    onChange={(e) => setUserForm(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowUserPassword(!showUserPassword)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  >
-                    {showUserPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                <select
-                  value={userForm.role}
-                  onChange={(e) => setUserForm(prev => ({ ...prev, role: e.target.value }))}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="User">User</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Administrator">Administrator</option>
-                </select>
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleUserSubmit}
-                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    {editingUser ? 'Update' : 'Add'} User
-                  </button>
-                  {editingUser && (
-                    <button
-                      onClick={resetUserForm}
-                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Users List */}
-            <div>
-              <h3 className="font-semibold mb-3">Current Users ({users.length})</h3>
-              <div className="space-y-2">
-                {users.map(user => (
-                  <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${user.active ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <div>
-                        <p className="font-medium flex items-center gap-2">
-                          {user.username}
-                          {user.id === currentUser.id && (
-                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">You</span>
-                          )}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="inline-flex items-center gap-1">
-                            <Shield className="h-3 w-3" />
-                            {user.role}
-                          </span>
-                          {user.last_login && (
-                            <>
-                              <span className="mx-2">•</span>
-                              <span>Last Login: {new Date(user.last_login).toLocaleDateString()}</span>
-                            </>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium ${user.active ? 'text-green-600' : 'text-red-600'}`}>
-                        {user.active ? 'Active' : 'Inactive'}
-                      </span>
-                      <button
-                        onClick={() => toggleUserStatus(user.id)}
-                        className={`px-3 py-1 rounded text-sm transition-colors ${
-                          user.active
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        }`}
-                        disabled={user.id === currentUser.id}
-                      >
-                        {user.active ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button
-                        onClick={() => handleEditUser(user)}
-                        className="text-yellow-600 hover:text-yellow-800"
-                        title="Edit User"
-                      >
-                        <Edit3 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete User"
-                        disabled={user.id === currentUser.id}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* User Statistics */}
-            <div className="mt-6 grid md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-blue-700">Total Users</p>
-                <p className="text-2xl font-bold text-blue-900">{users.length}</p>
-              </div>
-              <div className="bg-green-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-green-700">Active Users</p>
-                <p className="text-2xl font-bold text-green-900">{users.filter(u => u.active).length}</p>
-              </div>
-              <div className="bg-yellow-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-yellow-700">Administrators</p>
-                <p className="text-2xl font-bold text-yellow-900">{users.filter(u => u.role === 'Administrator').length}</p>
-              </div>
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-purple-700">Managers</p>
-                <p className="text-2xl font-bold text-purple-900">{users.filter(u => u.role === 'Manager').length}</p>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => { setShowUserManager(false); resetUserForm(); }}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Category Manager Modal */}
-      {showCategoryManager && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Manage Categories</h2>
-            <div className="border-b pb-4 mb-4">
-              <h3 className="font-semibold mb-3">Add New Category</h3>
-              <div className="flex gap-2">
-                <select
-                  value={categoryType} onChange={(e) => setCategoryType(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                >
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-                <input
-                  type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  placeholder="Category name"
-                />
-                <button onClick={addCategory} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-                  Add
-                </button>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold mb-3 text-green-700">Income Categories ({incomeCategories.length})</h3>
-                <div className="space-y-2">
-                  {incomeCategories.map((category, index) => (
-                    <div key={category} className="flex items-center gap-2 bg-green-50 p-2 rounded">
-                      {editingCategory && editingCategory.category === category && editingCategory.type === 'income' ? (
-                        <>
-                          <input
-                            type="text" value={editCategoryValue} onChange={(e) => setEditCategoryValue(e.target.value)}
-                            className="flex-1 border border-green-300 rounded px-2 py-1 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                            onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
-                          />
-                          <button onClick={saveEditCategory} className="text-green-600 hover:text-green-800 px-2" title="Save">✓</button>
-                          <button onClick={cancelEditCategory} className="text-red-600 hover:text-red-800 px-2" title="Cancel">✕</button>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex flex-col">
-                            <button
-                              onClick={() => moveCategoryUp(category, 'income')}
-                              disabled={index === 0}
-                              className={`p-1 rounded ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:text-green-800 hover:bg-green-100'}`}
-                              title="Move Up"
-                            >
-                              <ChevronUp className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => moveCategoryDown(category, 'income')}
-                              disabled={index === incomeCategories.length - 1}
-                              className={`p-1 rounded ${index === incomeCategories.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:text-green-800 hover:bg-green-100'}`}
-                              title="Move Down"
-                            >
-                              <ChevronDown className="h-3 w-3" />
-                            </button>
-                          </div>
-                          <span className="flex-1">{category}</span>
-                          <button onClick={() => startEditCategory(category, 'income')} className="text-yellow-600 hover:text-yellow-800" title="Edit">
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => removeCategory(category, 'income')} className="text-red-600 hover:text-red-800" title="Delete">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-red-700">Expense Categories ({expenseCategories.length})</h3>
-                <div className="space-y-2">
-                  {expenseCategories.map((category, index) => (
-                    <div key={category} className="flex items-center gap-2 bg-red-50 p-2 rounded">
-                      {editingCategory && editingCategory.category === category && editingCategory.type === 'expense' ? (
-                        <>
-                          <input
-                            type="text" value={editCategoryValue} onChange={(e) => setEditCategoryValue(e.target.value)}
-                            className="flex-1 border border-red-300 rounded px-2 py-1 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                            onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
-                          />
-                          <button onClick={saveEditCategory} className="text-green-600 hover:text-green-800 px-2" title="Save">✓</button>
-                          <button onClick={cancelEditCategory} className="text-red-600 hover:text-red-800 px-2" title="Cancel">✕</button>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex flex-col">
-                            <button
-                              onClick={() => moveCategoryUp(category, 'expense')}
-                              disabled={index === 0}
-                              className={`p-1 rounded ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100'}`}
-                              title="Move Up"
-                            >
-                              <ChevronUp className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => moveCategoryDown(category, 'expense')}
-                              disabled={index === expenseCategories.length - 1}
-                              className={`p-1 rounded ${index === expenseCategories.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-red-600 hover:text-red-800 hover:bg-red-100'}`}
-                              title="Move Down"
-                            >
-                              <ChevronDown className="h-3 w-3" />
-                            </button>
-                          </div>
-                          <span className="flex-1">{category}</span>
-                          <button onClick={() => startEditCategory(category, 'expense')} className="text-yellow-600 hover:text-yellow-800" title="Edit">
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => removeCategory(category, 'expense')} className="text-red-600 hover:text-red-800" title="Delete">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => { setShowCategoryManager(false); setEditingCategory(null); setEditCategoryValue(''); }}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Transaction Form Modal */}
-      {showTransactionForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
-              {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
-            </h2>
-
-            {transactionError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                <p className="text-red-600 text-sm">{transactionError}</p>
-              </div>
-            )}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value, category: '' }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                >
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Unit Amount</label>
-                <input
-                  type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  placeholder="0.00" required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                <input
-                  type="number" step="0.01" value={formData.quantity} onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  placeholder="1" required
-                />
-              </div>
-              {formData.amount && formData.quantity && (
-                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                  <p className="text-sm text-yellow-700">
-                    <strong>Total Amount: RM {(parseFloat(formData.amount || 0) * parseFloat(formData.quantity || 1)).toFixed(2)}</strong>
-                  </p>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  value={formData.category} onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required
-                >
-                  <option value="">Select a category</option>
-                  {currentCategories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-                <input
-                  type="text" value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  placeholder="Enter description (optional)"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-                <select
-                  value={formData.paymentMethod} onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                >
-                  <option value="cash">Cash</option>
-                  <option value="online">Online Transaction</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input
-                  type="date" value={formData.date} onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={handleSubmit} className="flex-1 bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-                  {editingTransaction ? 'Update Transaction' : 'Add Transaction'}
-                </button>
-                <button onClick={() => { setShowTransactionForm(false); resetForm(); }} className="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <TransactionModal
+        isOpen={showTransactionForm}
+        onClose={closeTransactionModal}
+        editingTransaction={editingTransaction}
+        onSubmit={handleSubmit}
+        categories={categories}
+      />
     </div>
   );
 };

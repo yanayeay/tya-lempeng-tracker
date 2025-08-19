@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/components/modals/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,74 +20,67 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="2129" column="59" selection-start-line="2129" selection-start-column="22" selection-end-line="2129" selection-end-column="59" />
+            <state relative-caret-position="136">
+              <caret line="245" column="25" selection-start-line="245" selection-start-column="25" selection-end-line="245" selection-end-column="25" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/config/rolePermissions.js">
+        <entry file="file://$PROJECT_DIR$/src/hooks/useModals.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="287">
+              <caret line="69" column="22" selection-start-line="69" selection-start-column="22" selection-end-line="69" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/modals/TransactionModal.jsx">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="644">
-              <caret line="56" column="2" selection-start-line="56" selection-start-column="2" selection-end-line="56" selection-end-column="2" />
+              <caret line="178" column="32" selection-start-line="178" selection-start-column="32" selection-end-line="178" selection-end-column="32" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/config/tabs.js">
+        <entry file="file://$PROJECT_DIR$/src/components/modals/OrderModal.jsx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="32" column="2" selection-start-line="32" selection-start-column="2" selection-end-line="32" selection-end-column="2" />
+            <state relative-caret-position="370">
+              <caret line="69" column="4" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="4" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/services/permissionService.js">
+        <entry file="file://$PROJECT_DIR$/src/components/modals/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="161" column="2" selection-start-line="161" selection-start-column="2" selection-end-line="161" selection-end-column="2" />
+            <state relative-caret-position="136">
+              <caret line="8" column="50" selection-start-line="8" selection-start-column="50" selection-end-line="8" selection-end-column="50" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/hooks/usePermissions.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
-              <caret line="134" column="19" selection-start-line="134" selection-start-column="4" selection-end-line="134" selection-end-column="19" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/src/components/modals/CategoryModal.jsx">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="95" column="2" selection-start-line="95" selection-start-column="2" selection-end-line="95" selection-end-column="2" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/src/components/modals/UserModal.jsx">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/modals/AccessModal.jsx">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>filterTransaction</find>
-      <find>Type</find>
-      <find>Income</find>
-      <find>option value</find>
-      <find>formData</find>
-      <find>useEffec</find>
-      <find>type:</find>
-      <find>setFormData</find>
-      <find>useState</find>
-      <find>tabs</find>
-      <find>permission</find>
-      <find>orderFormData</find>
-      <find>export</find>
       <find>filter</find>
       <find>exportTo</find>
       <find>Orkid</find>
@@ -100,9 +95,22 @@
       <find>Transaction</find>
       <find>{editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}</find>
       <find>onst loadRolePermissions = async () =&gt; {</find>
-      <find>rolePermissions</find>
       <find>checked={rolePermissions[selectedRole]?.admin?.manageUser || false}</find>
       <find>onChange={(e) =&gt; updateRolePermission</find>
+      <find>rolePermissions</find>
+      <find>Tya's :</find>
+      <find>const [editingUser, setEditingUser] = useState(null);</find>
+      <find>const [showOrderForm, setShowOrderForm] = useState(false);</find>
+      <find>showAccessManager</find>
+      <find>handleEdit</find>
+      <find>handleDelete</find>
+      <find>handle</find>
+      <find>handleEdit</find>
+      <find>handleOrderSubmit</find>
+      <find>OrderModal</find>
+      <find>handleOrderSubmit</find>
+      <find>handleSub</find>
+      <find>const resetOrderForm = ()</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -128,6 +136,11 @@
         <option value="$PROJECT_DIR$/src/services/permissionService.js" />
         <option value="$PROJECT_DIR$/src/hooks/usePermissions.js" />
         <option value="$PROJECT_DIR$/src/utils/permissions.js" />
+        <option value="$PROJECT_DIR$/src/components/modals/TransactionModal.jsx" />
+        <option value="$PROJECT_DIR$/src/components/modals/index.js" />
+        <option value="$PROJECT_DIR$/src/hooks/useModals.js" />
+        <option value="$PROJECT_DIR$/src/hooks/useModal.js" />
+        <option value="$PROJECT_DIR$/src/components/modals/OrderModal.jsx" />
         <option value="$PROJECT_DIR$/src/App.js" />
       </list>
     </option>
@@ -168,6 +181,19 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="components" type="462c0819:PsiDirectoryNode" />
               <item name="auth" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tya-lempeng-tracker" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="components" type="462c0819:PsiDirectoryNode" />
+              <item name="modals" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tya-lempeng-tracker" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
@@ -379,12 +405,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="95" column="2" selection-start-line="95" selection-start-column="2" selection-end-line="95" selection-end-column="2" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/src/hooks/useModals.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/UserModal.jsx">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/hooks/usePermissions.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -393,10 +418,51 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="95" column="2" selection-start-line="95" selection-start-column="2" selection-end-line="95" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/AccessModal.jsx">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/OrderModal.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="370">
+          <caret line="69" column="4" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/CategoryModal.jsx">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="50" selection-start-line="8" selection-start-column="50" selection-end-line="8" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/hooks/useModals.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="287">
+          <caret line="69" column="22" selection-start-line="69" selection-start-column="22" selection-end-line="69" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/TransactionModal.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="178" column="32" selection-start-line="178" selection-start-column="32" selection-end-line="178" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="2129" column="59" selection-start-line="2129" selection-start-column="22" selection-end-line="2129" selection-end-column="59" />
+        <state relative-caret-position="136">
+          <caret line="245" column="25" selection-start-line="245" selection-start-column="25" selection-end-line="245" selection-end-column="25" />
         </state>
       </provider>
     </entry>
