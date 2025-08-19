@@ -1,33 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Plus,
-  Edit3,
-  Trash2,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Settings,
-  Filter,
-  X,
-  Calendar,
-  Tag,
   LogOut,
-  Globe,
-  BarChart3,
-  CreditCard,
-  Shield,
-  ShoppingCart,
-  Eye,
-  EyeOff,
-  Truck,
-  ChevronUp,
-  ChevronDown
+  Globe
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { useAuth } from './hooks/useAuth';
 import AuthWrapper from './components/auth/AuthWrapper';
 import { useTransactions } from './hooks/useTransactions';
-import { calculateTransactionTotals, calculateOrdersData } from './utils/calculations';
+import { calculateTransactionTotals } from './utils/calculations';
 import { usePermissions } from './hooks/usePermissions';
 import { TAB_CONFIGURATION } from './config/tabs';
 import { checkTabAccess, getDefaultTab } from './utils/permissions';
@@ -37,14 +17,12 @@ import { DashboardTab, TransactionsTab, OrdersTab, AdminTab } from './components
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
   // Use permission hook instead of managing state manually
-  const {
-    rolePermissions,
-    loading: permissionsLoading,
-    hasPermission: checkUserPermission,
-    updateRolePermission,
-    getDefaultTab: getDefaultTabForUser,
-    error: permissionError
-  } = usePermissions();
+const {
+  rolePermissions,
+  loading: permissionsLoading,
+  hasPermission: checkUserPermission,
+  updateRolePermission
+} = usePermissions();
 
   // Create permission checker function for current user
   const hasPermission = (category, permission) => {
@@ -146,7 +124,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         }
       }
     }
-  }, [activeTab, currentUser, permissionsLoading]);
+  }, [activeTab, currentUser, permissionsLoading, hasPermission]);
 
   // Load data on component mount
   useEffect(() => {
@@ -174,8 +152,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     addTransaction,
     updateTransaction,
     deleteTransaction,
-    clearAllTransactions,
-    error: transactionError
+    clearAllTransactions
   } = useTransactions();
 
   const loadCategories = async () => {
@@ -251,9 +228,16 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       if (editingOrder) {
         const { error } = await supabase.from('orders').update(orderData).eq('id', editingOrder.id);
         if (error) throw error;
+
+        //simple success message for update order
+        alert(`✅ Order updated successfully!\nCustomer: ${orderFormData.name}`);
+
       } else {
         const { error } = await supabase.from('orders').insert([orderData]);
         if (error) throw error;
+
+        //Simple success message for new order
+        alert(`🎉 Order added successfully!\nCustomer: ${orderFormData.name}\nSet: ${orderFormData.set}`);
       }
 
       await loadOrders();
@@ -690,7 +674,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       role: 'User',
       active: true
     });
-    openUserModal(null);
     setShowUserPassword(false);
   };
 
@@ -792,11 +775,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     }
   };
 
-  const resetAccessManager = () => {
-    setSelectedRole('Administrator');
-    closeAccessModal();
-  };
-
   const exportToCSV = () => {
     const headers = ['Date', 'Type', 'Category', 'Description', 'Unit Amount', 'Quantity', 'Total Amount', 'Payment Method'];
     const csvContent = [
@@ -850,12 +828,12 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const filteredTransactions = getFilteredTransactions();
   const filteredOrders = getFilteredOrders();
   // 🎉 NEW: Simplified calculations using utility functions
-  const totals = calculateTransactionTotals(filteredTransactions);
-  const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = totals;
+  //const totals = calculateTransactionTotals(filteredTransactions);
+  //const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = totals;
   const allCategories = categories.map(c => c.name);
   const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
-  const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
+  //const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
   if (loading || permissionsLoading || transactionsLoading) {
     return (
