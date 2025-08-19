@@ -28,63 +28,24 @@ import { useAuth } from './hooks/useAuth';
 import AuthWrapper from './components/auth/AuthWrapper';
 import { useTransactions } from './hooks/useTransactions';
 import { calculateTransactionTotals, calculateOrdersData } from './utils/calculations';
+import { usePermissions } from './hooks/usePermissions';
+import { TAB_CONFIGURATION } from './config/tabs';
+import { checkTabAccess, getDefaultTab } from './utils/permissions';
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
-  // Access Control Management - Define this first
-  const [rolePermissions, setRolePermissions] = useState({
-    'Administrator': {
-      dashboard: { viewDashboard: true },
-      transactions: {
-        viewTransactions: true, addTransaction: true, editTransaction: true,
-        deleteTransaction: true, filterTransaction: true, exportCSV: true
-      },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: true,
-          deleteOrder: true, filterOrder: true, exportOrderCSV: true
-      },
-      admin: {
-        viewAdmin: true, manageUser: true, manageAccess: true,
-        backupData: true, importBackup: true, clearAllData: true
-      }
-    },
-    'Manager': {
-      dashboard: { viewDashboard: true },
-      transactions: {
-        viewTransactions: true, addTransaction: true, editTransaction: true,
-        deleteTransaction: false, filterTransaction: true, exportCSV: true
-      },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: true,
-          deleteOrder: false, filterOrder: true, exportOrderCSV: true
-      },
-      admin: {
-        viewAdmin: true, manageUser: false, manageAccess: false,
-        backupData: true, importBackup: false, clearAllData: false
-      }
-    },
-    'User': {
-      dashboard: { viewDashboard: true },
-      transactions: {
-        viewTransactions: true, addTransaction: true, editTransaction: false,
-        deleteTransaction: false, filterTransaction: true, exportCSV: false
-      },
-      orders: {                                    // ADD THIS ENTIRE BLOCK
-          viewOrders: true, addOrder: true, editOrder: false,
-          deleteOrder: false, filterOrder: true, exportOrderCSV: false
-      },
-      admin: {
-        viewAdmin: false, manageUser: false, manageAccess: false,
-        backupData: false, importBackup: false, clearAllData: false
-      }
-    }
-  });
-  const [permissionsLoading, setPermissionsLoading] = useState(true);
+  // Use permission hook instead of managing state manually
+  const {
+    rolePermissions,
+    loading: permissionsLoading,
+    hasPermission: checkUserPermission,
+    updateRolePermission,
+    getDefaultTab: getDefaultTabForUser,
+    error: permissionError
+  } = usePermissions();
 
-  // Access Control Functions
+  // Create permission checker function for current user
   const hasPermission = (category, permission) => {
-    if (!currentUser || !currentUser.role) return false;
-    const userRole = currentUser.role;
-    return rolePermissions[userRole]?.[category]?.[permission] || false;
+    return checkUserPermission(currentUser?.role, category, permission);
   };
 
   // States
@@ -164,55 +125,27 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     paymentStatus: 'Unpaid', remarks: ''
   });
 
-  // Navigation tabs configuration
-  const tabs = [
-    {
-      id: 'dashboard',
-      name: 'Dashboard',
-      icon: BarChart3,
-      description: 'Overview & Analytics'
-    },
-    {
-        id: 'orders',           // ADD THIS ENTIRE OBJECT
-        name: 'Orders',
-        icon: ShoppingCart,
-        description: 'Manage Orders'
-    },
-    {
-      id: 'transactions',
-      name: 'Transactions',
-      icon: CreditCard,
-      description: 'Manage Transactions'
-    },
-    {
-      id: 'admin',
-      name: 'Admin',
-      icon: Shield,
-      description: 'Settings & Data'
-    }
-  ];
+  // 🎉 NEW: Use configuration instead of inline definition
+  const tabs = TAB_CONFIGURATION;
 
   // Check if current tab is accessible, redirect if not
+  // 🎉 Simplified tab access checking
   useEffect(() => {
-    const canViewCurrentTab =
-      (activeTab === 'dashboard' && hasPermission('dashboard', 'viewDashboard')) ||
-      (activeTab === 'transactions' && hasPermission('transactions', 'viewTransactions')) ||
-      (activeTab === 'orders' && hasPermission('orders', 'viewOrders')) ||
-      (activeTab === 'admin' && hasPermission('admin', 'viewAdmin'));
+    if (!permissionsLoading && currentUser) {
+      const canViewCurrentTab = checkTabAccess(activeTab, hasPermission);
 
-    if (!canViewCurrentTab) {
-      if (hasPermission('dashboard', 'viewDashboard')) setActiveTab('dashboard');
-      else if (hasPermission('transactions', 'viewTransactions')) setActiveTab('transactions');
-      else if (hasPermission('admin', 'viewAdmin')) setActiveTab('admin');
+      if (!canViewCurrentTab) {
+        const defaultTab = getDefaultTab(hasPermission);
+        if (defaultTab) {
+          setActiveTab(defaultTab);
+        }
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, currentUser.role, rolePermissions]);
+  }, [activeTab, currentUser, permissionsLoading]);
 
   // Load data on component mount
   useEffect(() => {
     loadOtherData();
-    loadRolePermissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadOtherData = async () => {
@@ -227,138 +160,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       console.error('Error loading data:', error);
     }
     setLoading(false);
-  };
-
-  // Role Permissions Database Functions
-  const loadRolePermissions = async () => {
-    setPermissionsLoading(true);
-    try {
-      console.log('Loading role permissions from database...');
-
-      const { data, error } = await supabase
-        .from('role_permissions')
-        .select('*');
-
-      console.log('Load permissions result:', { data, error });
-
-      if (error) {
-        console.error('Error loading role permissions:', error);
-        if (error.code === '42P01') {
-          console.log('Table role_permissions does not exist. Using default permissions.');
-          alert('Role permissions table not found. Please create the database table first. Using default permissions for now.');
-        }
-        // Keep default permissions if database load fails
-        setPermissionsLoading(false);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        console.log(`Loaded ${data.length} permission records from database`);
-
-        // Convert flat database records to nested permission object
-        const permissionsFromDB = {};
-
-        data.forEach(record => {
-          if (!permissionsFromDB[record.role]) {
-            permissionsFromDB[record.role] = {};
-          }
-          if (!permissionsFromDB[record.role][record.category]) {
-            permissionsFromDB[record.role][record.category] = {};
-          }
-          permissionsFromDB[record.role][record.category][record.permission] = record.value;
-        });
-
-        console.log('Permissions from DB:', permissionsFromDB);
-
-        // Merge with defaults to ensure all permissions exist
-        const mergedPermissions = { ...rolePermissions };
-        Object.keys(permissionsFromDB).forEach(role => {
-          if (mergedPermissions[role]) {
-            Object.keys(permissionsFromDB[role]).forEach(category => {
-              if (mergedPermissions[role][category]) {
-                Object.keys(permissionsFromDB[role][category]).forEach(permission => {
-                  mergedPermissions[role][category][permission] = permissionsFromDB[role][category][permission];
-                });
-              }
-            });
-          }
-        });
-
-        console.log('Final merged permissions:', mergedPermissions);
-        setRolePermissions(mergedPermissions);
-      } else {
-        console.log('No permission records found in database. Using defaults.');
-      }
-    } catch (err) {
-      console.error('Error loading role permissions:', err);
-      alert(`Error loading permissions: ${err.message}. Using default permissions.`);
-    }
-    setPermissionsLoading(false);
-  };
-
-  const saveRolePermissionToDB = async (role, category, permission, value) => {
-    try {
-      console.log(`Attempting to save: ${role}.${category}.${permission} = ${value}`);
-
-      // First try to update existing record
-      const { data: existingData, error: fetchError } = await supabase
-        .from('role_permissions')
-        .select('id')
-        .eq('role', role)
-        .eq('category', category)
-        .eq('permission', permission)
-        .single();
-
-      console.log('Fetch result:', { existingData, fetchError });
-
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
-        console.error('Fetch error:', fetchError);
-        throw fetchError;
-      }
-
-      if (existingData) {
-        // Update existing record
-        console.log('Updating existing record:', existingData.id);
-        const { error: updateError } = await supabase
-          .from('role_permissions')
-          .update({ value: value })
-          .eq('id', existingData.id);
-
-        if (updateError) {
-          console.error('Update error:', updateError);
-          throw updateError;
-        }
-        console.log('Update successful');
-      } else {
-        // Insert new record
-        console.log('Inserting new record');
-        const { error: insertError } = await supabase
-          .from('role_permissions')
-          .insert([{
-            role: role,
-            category: category,
-            permission: permission,
-            value: value
-          }]);
-
-        if (insertError) {
-          console.error('Insert error:', insertError);
-          throw insertError;
-        }
-        console.log('Insert successful');
-      }
-
-      console.log(`✅ Saved permission: ${role}.${category}.${permission} = ${value}`);
-    } catch (error) {
-      console.error('❌ Error saving role permission:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
-      alert(`Error saving permission changes: ${error.message || 'Unknown error'}. Check console for details.`);
-    }
   };
 
   // 🎉 Use transaction hook instead of managing state manually
@@ -648,7 +449,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
         // Reload data
         await loadOtherData();
-        await loadRolePermissions(); // Reload permissions to defaults
         alert('All data cleared and reset to defaults!');
       } catch (error) {
         console.error('Error clearing data:', error);
@@ -1023,22 +823,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       console.error('Error toggling user status:', error);
       alert('Error updating user status. Please try again.');
     }
-  };
-
-  const updateRolePermission = (category, permission, value) => {
-    setRolePermissions(prev => ({
-      ...prev,
-      [selectedRole]: {
-        ...prev[selectedRole],
-        [category]: {
-          ...prev[selectedRole][category],
-          [permission]: value
-        }
-      }
-    }));
-
-    // Save to database
-    saveRolePermissionToDB(selectedRole, category, permission, value);
   };
 
   const resetAccessManager = () => {
@@ -2260,7 +2044,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.dashboard?.viewDashboard || false}
-                      onChange={(e) => updateRolePermission('dashboard', 'viewDashboard', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'dashboard', 'viewDashboard', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">View Dashboard Page</span>
@@ -2279,7 +2063,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.transactions?.viewTransactions || false}
-                      onChange={(e) => updateRolePermission('transactions', 'viewTransactions', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'viewTransactions', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">View Transaction Page</span>
@@ -2288,7 +2072,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.transactions?.addTransaction || false}
-                      onChange={(e) => updateRolePermission('transactions', 'addTransaction', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'addTransaction', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Add Transaction</span>
@@ -2297,7 +2081,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.transactions?.editTransaction || false}
-                      onChange={(e) => updateRolePermission('transactions', 'editTransaction', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'editTransaction', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Edit Transaction</span>
@@ -2315,7 +2099,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.transactions?.filterTransaction || false}
-                      onChange={(e) => updateRolePermission('transactions', 'filterTransaction', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'filterTransaction', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Filter Transaction</span>
@@ -2324,7 +2108,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.transactions?.exportCSV || false}
-                      onChange={(e) => updateRolePermission('transactions', 'exportCSV', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'transactions', 'exportCSV', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Export CSV</span>
@@ -2343,7 +2127,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.viewAdmin || false}
-                      onChange={(e) => updateRolePermission('admin', 'viewAdmin', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'viewAdmin', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">View Admin Page</span>
@@ -2352,7 +2136,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.manageUser || false}
-                      onChange={(e) => updateRolePermission('admin', 'manageUser', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'manageUser', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Manage User</span>
@@ -2361,7 +2145,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.manageAccess || false}
-                      onChange={(e) => updateRolePermission('admin', 'manageAccess', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'manageAccess', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Manage Access</span>
@@ -2370,7 +2154,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.backupData || false}
-                      onChange={(e) => updateRolePermission('admin', 'backupData', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'backupData', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Backup Data</span>
@@ -2379,7 +2163,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.importBackup || false}
-                      onChange={(e) => updateRolePermission('admin', 'importBackup', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'importBackup', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Import Backup</span>
@@ -2388,7 +2172,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
                     <input
                       type="checkbox"
                       checked={rolePermissions[selectedRole]?.admin?.clearAllData || false}
-                      onChange={(e) => updateRolePermission('admin', 'clearAllData', e.target.checked)}
+                      onChange={(e) => updateRolePermission(selectedRole,'admin', 'clearAllData', e.target.checked)}
                       className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium">Clear All Data</span>
@@ -2726,7 +2510,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
             <h2 className="text-xl font-bold mb-4">
               {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
             </h2>
-            
+
             {transactionError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                 <p className="text-red-600 text-sm">{transactionError}</p>
