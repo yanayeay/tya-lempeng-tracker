@@ -32,7 +32,7 @@ import { usePermissions } from './hooks/usePermissions';
 import { TAB_CONFIGURATION } from './config/tabs';
 import { checkTabAccess, getDefaultTab } from './utils/permissions';
 import { useModals } from './hooks/useModals';
-import { TransactionModal, OrderModal } from './components/modals';
+import { TransactionModal, OrderModal, CategoryModal, UserModal, AccessModal } from './components/modals';
 import { DashboardTab, TransactionsTab, OrdersTab, AdminTab } from './components/tabs';
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
@@ -870,8 +870,6 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     );
   }
 
-  // Calculate orders data for dashboard
-
   // DASHBOARD COMPONENT
   const DashboardTabWrapper = () => (
     <DashboardTab transactions={transactions} />
@@ -1041,13 +1039,53 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       />
 
       {/* Access Manager Modal */}
-
+      <AccessModal
+        isOpen={showAccessManager}
+        onClose={closeAccessModal}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+        rolePermissions={rolePermissions}
+        updateRolePermission={updateRolePermission}
+      />
 
       {/* User Manager Modal */}
-
+      <UserModal
+        isOpen={showUserManager}
+        onClose={closeUserModal}
+        users={users}
+        currentUser={currentUser}
+        editingUser={editingUser}
+        userForm={userForm}
+        setUserForm={setUserForm}
+        showUserPassword={showUserPassword}
+        setShowUserPassword={setShowUserPassword}
+        handleUserSubmit={handleUserSubmit}
+        handleEditUser={handleEditUser}
+        handleDeleteUser={handleDeleteUser}
+        toggleUserStatus={toggleUserStatus}
+        resetUserForm={resetUserForm}
+      />
 
       {/* Category Manager Modal */}
-
+      <CategoryModal
+        isOpen={showCategoryManager}
+        onClose={closeCategoryModal}
+        categories={categories}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        categoryType={categoryType}
+        setCategoryType={setCategoryType}
+        editingCategory={editingCategory}
+        editCategoryValue={editCategoryValue}
+        setEditCategoryValue={setEditCategoryValue}
+        addCategory={addCategory}
+        removeCategory={removeCategory}
+        startEditCategory={startEditCategory}
+        saveEditCategory={saveEditCategory}
+        cancelEditCategory={cancelEditCategory}
+        moveCategoryUp={moveCategoryUp}
+        moveCategoryDown={moveCategoryDown}
+      />
 
       {/* Transaction Form Modal */}
       <TransactionModal

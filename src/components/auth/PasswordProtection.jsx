@@ -32,7 +32,7 @@ const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearE
           <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
             <Lock className="h-10 w-10 text-yellow-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Biz</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz Tracker</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
