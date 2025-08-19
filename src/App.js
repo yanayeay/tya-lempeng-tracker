@@ -11,7 +11,6 @@ import {
   X,
   Calendar,
   Tag,
-  Lock,
   LogOut,
   Globe,
   BarChart3,
@@ -25,133 +24,8 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
-
-const PasswordProtection = ({ onAuthenticated }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!username || !password) {
-      setError('Please enter both username and password');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      // Fetch user from Supabase
-      const { data: users, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .eq('active', true)
-        .single();
-
-      if (error || !users) {
-        setError('Invalid username or password');
-        setPassword('');
-        setLoading(false);
-        return;
-      }
-
-      // Compare with stored password (in production, you'd use bcrypt.compare)
-      if (password === users.password_hash) {
-        // Update last login
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', users.id);
-
-        onAuthenticated(users);
-      } else {
-        setError('Invalid username or password');
-        setPassword('');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-      console.error('Login error:', err);
-    }
-
-    setLoading(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-red-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-6">
-          <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-10 w-10 text-yellow-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Financial Biz</h1>
-          <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-center text-lg"
-              placeholder="Enter your username"
-              autoFocus
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-center text-lg"
-                placeholder="Enter your password"
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                disabled={loading}
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm text-center">{error}</p>
-            </div>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-yellow-600 text-white py-3 px-4 rounded-lg hover:bg-yellow-700 transition-colors font-medium disabled:opacity-50"
-          >
-            {loading ? '🔄 Logging in...' : '🔐 Login to System'}
-          </button>
-        </div>
-
-        <div className="mt-6 text-center space-y-2">
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>☁️ Powered by Supabase</p>
-            <p>🔒 Secure cloud authentication</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { useAuth } from './hooks/useAuth';
+import AuthWrapper from './components/auth/AuthWrapper';
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
   // Access Control Management - Define this first
@@ -3092,26 +2966,17 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 };
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const { isAuthenticated, currentUser, logout, setAuthenticatedUser } = useAuth();
 
   const handleAuthentication = (user) => {
-    setCurrentUser(user);
-    setIsAuthenticated(true);
+    setAuthenticatedUser(user);
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-  };
-
-  // Show login page when not authenticated
   if (!isAuthenticated || !currentUser) {
-    return <PasswordProtection onAuthenticated={handleAuthentication} />;
+    return <AuthWrapper onAuthenticated={handleAuthentication} />;
   }
 
-  // Show main app when authenticated
-  return <FinanceTracker onLogout={handleLogout} currentUser={currentUser} />;
+  return <FinanceTracker onLogout={logout} currentUser={currentUser} />;
 };
 
 export default App;
