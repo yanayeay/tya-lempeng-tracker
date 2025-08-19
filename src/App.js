@@ -51,14 +51,27 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const {
-    showTransactionForm,
-    showOrderForm,
-    openTransactionModal,
-    closeTransactionModal,
-    openOrderModal,
-    closeOrderModal,
-    editingTransaction,
-    editingOrder
+   // States - ALL of these should be included
+     showTransactionForm,
+     showOrderForm,
+     showCategoryManager,
+     showUserManager,
+     showAccessManager,
+     editingTransaction,
+     editingOrder,
+     editingUser,
+
+     // Actions
+     openTransactionModal,
+     closeTransactionModal,
+     openOrderModal,
+     closeOrderModal,
+     openCategoryModal,
+     closeCategoryModal,
+     openUserModal,
+     closeUserModal,
+     openAccessModal,
+     closeAccessModal
   } = useModals();
 
   // States
@@ -494,7 +507,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       type: 'income', amount: '', quantity: ' ', category: '', description: '', paymentMethod: 'online',
       date: new Date().toISOString().split('T')[0]
     });
-    setEditingTransaction(null);
+    openTransactionModal(null);
   };
 
   // 🎉 Simplified transaction handlers using the hook
@@ -507,7 +520,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
     if (success) {
       resetForm();
-      setShowTransactionForm(false);
+      closeTransactionModal();
     }
   };
 
@@ -677,7 +690,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       role: 'User',
       active: true
     });
-    setEditingUser(null);
+    openUserModal(null);
     setShowUserPassword(false);
   };
 
@@ -727,7 +740,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const handleEditUser = (user) => {
-    setEditingUser(user);
+    openUserModal(user);
     setUserForm({
       username: user.username,
       password: user.password_hash,
@@ -1387,7 +1400,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex flex-wrap gap-3 mb-4">
             {hasPermission('orders', 'addOrder') && (
-              <button onClick={() => setShowOrderForm(true)} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors">
+              <button onClick={() => openOrderModal()} className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2 transition-colors">
                 <Plus className="h-4 w-4" /> Add Order
               </button>
             )}
@@ -1629,7 +1642,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
           <div className="flex gap-2">
             {hasPermission('admin', 'manageUser') && (
               <button
-                onClick={() => setShowUserManager(true)}
+                onClick={() => openUserModal() }
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
               >
                 <Settings className="h-4 w-4" />
@@ -1686,7 +1699,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Category Management</h3>
         <button
-          onClick={() => setShowCategoryManager(true)}
+          onClick={() => openCategoryModal()}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors"
         >
           <Settings className="h-4 w-4" />
