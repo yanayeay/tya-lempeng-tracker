@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback  } from 'react';
 import {
   LogOut,
   Globe
@@ -7,7 +7,6 @@ import { supabase } from './lib/supabase';
 import { useAuth } from './hooks/useAuth';
 import AuthWrapper from './components/auth/AuthWrapper';
 import { useTransactions } from './hooks/useTransactions';
-import { calculateTransactionTotals } from './utils/calculations';
 import { usePermissions } from './hooks/usePermissions';
 import { TAB_CONFIGURATION } from './config/tabs';
 import { checkTabAccess, getDefaultTab } from './utils/permissions';
@@ -25,9 +24,9 @@ const {
 } = usePermissions();
 
   // Create permission checker function for current user
-  const hasPermission = (category, permission) => {
+  const hasPermission = useCallback((category, permission) => {
     return checkUserPermission(currentUser?.role, category, permission);
-  };
+  }, [checkUserPermission, currentUser?.role]);
 
   const {
    // States - ALL of these should be included
@@ -68,16 +67,6 @@ const {
     types: [],
     paymentMethods: [],
     searchText: ''
-  });
-
-  const [formData, setFormData] = useState({
-    type: 'income',
-    amount: '',
-    quantity: ' ',
-    category: '',
-    description: '',
-    paymentMethod: 'online',
-    date: new Date().toISOString().split('T')[0]
   });
 
   // Category management states
@@ -126,12 +115,7 @@ const {
     }
   }, [activeTab, currentUser, permissionsLoading, hasPermission]);
 
-  // Load data on component mount
-  useEffect(() => {
-    loadOtherData();
-  }, []);
-
-  const loadOtherData = async () => {
+  const loadOtherData = useCallback(async () => {
     setLoading(true);
     try {
       await Promise.all([
@@ -143,12 +127,16 @@ const {
       console.error('Error loading data:', error);
     }
     setLoading(false);
-  };
+  }, []);
+
+    // Load data on component mount
+    useEffect(() => {
+      loadOtherData();
+    }, [loadOtherData]);
 
   // 🎉 Use transaction hook instead of managing state manually
   const {
     transactions,
-    loading: transactionsLoading,
     addTransaction,
     updateTransaction,
     deleteTransaction,
@@ -479,25 +467,29 @@ const {
     event.target.value = '';
   };
 
-  const resetForm = () => {
-    setFormData({
-      type: 'income', amount: '', quantity: ' ', category: '', description: '', paymentMethod: 'online',
-      date: new Date().toISOString().split('T')[0]
-    });
-    openTransactionModal(null);
-  };
+//  const resetForm = () => {
+//    openTransactionModal(null);
+//  };
 
   // 🎉 Simplified transaction handlers using the hook
   const handleSubmit = async (formData) => {
-    if (!formData.amount || !formData.category || !formData.quantity) return;
+    if (!formData.amount || !formData.category || !formData.quantity) {
+        throw new Error('Please fill in all required fields');
+    }
 
-    const success = editingTransaction
-      ? await updateTransaction(editingTransaction.id, formData)
-      : await addTransaction(formData);
+    try {
+        const success = editingTransaction
+        ? await updateTransaction(editingTransaction.id, formData)
+        : await addTransaction(formData);
 
-    if (success) {
-      resetForm();
-      closeTransactionModal();
+        if (!success) {
+            throw new Error('Failed to save transaction');
+        }
+        return success;
+    }
+    catch (error) {
+        console.error('Error saving transaction:', error);
+        throw new Error('Failed to save transaction');
     }
   };
 
@@ -828,14 +820,12 @@ const {
   const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
   //const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
-  if (loading || permissionsLoading || transactionsLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">
-            {loading ? 'Loading your financial data...' : 'Loading access permissions...'}
-          </p>
+          <p className="mt-4 text-gray-600">Loading your financial data...</p>
         </div>
       </div>
     );
