@@ -1,5 +1,5 @@
 // config/tabs.js
-import { BarChart3, CreditCard, ShoppingCart, Shield } from 'lucide-react';
+import { BarChart3, CreditCard, ShoppingCart, Shield, Tag } from 'lucide-react';
 
 export const TAB_CONFIGURATION = [
   {
@@ -23,6 +23,12 @@ export const TAB_CONFIGURATION = [
     description: 'Manage Transactions',
     permission: { category: 'transactions', action: 'viewTransactions' }
   },
+  {
+      id: 'categories',
+      name: 'Categories',
+      icon: Tag,
+      description: 'Manage Categories'
+   },
   {
     id: 'admin',
     name: 'Admin',

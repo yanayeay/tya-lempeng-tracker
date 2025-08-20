@@ -8,11 +8,13 @@ import { useAuth } from './hooks/useAuth';
 import AuthWrapper from './components/auth/AuthWrapper';
 import { useTransactions } from './hooks/useTransactions';
 import { usePermissions } from './hooks/usePermissions';
+import { useCategories } from './hooks/useCategories';
+import { useModals } from './hooks/useModals';
 import { TAB_CONFIGURATION } from './config/tabs';
 import { checkTabAccess, getDefaultTab } from './utils/permissions';
-import { useModals } from './hooks/useModals';
 import { TransactionModal, OrderModal, CategoryModal, UserModal, AccessModal } from './components/modals';
-import { DashboardTab, TransactionsTab, OrdersTab, AdminTab } from './components/tabs';
+import { DashboardTab, TransactionsTab, OrdersTab, AdminTab, CategoriesTab } from './components/tabs';
+
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
   // Use permission hook instead of managing state manually
@@ -44,8 +46,8 @@ const {
      closeTransactionModal,
      openOrderModal,
      closeOrderModal,
-     openCategoryModal,
      closeCategoryModal,
+     openCategoryModal,
      openUserModal,
      closeUserModal,
      openAccessModal,
@@ -54,7 +56,6 @@ const {
 
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,10 +71,10 @@ const {
   });
 
   // Category management states
-  const [newCategory, setNewCategory] = useState('');
-  const [categoryType, setCategoryType] = useState('expense');
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [editCategoryValue, setEditCategoryValue] = useState('');
+  const {
+    categories,
+    getCategoryNames
+  } = useCategories();
 
   // User management states
   const [userForm, setUserForm] = useState({
@@ -119,7 +120,6 @@ const {
     setLoading(true);
     try {
       await Promise.all([
-        loadCategories(),
         loadUsers(),
         loadOrders()
       ]);
@@ -142,23 +142,6 @@ const {
     deleteTransaction,
     clearAllTransactions
   } = useTransactions();
-
-  const loadCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('sort_order', { ascending: true });
-
-      if (error) {
-        console.error('Error loading categories:', error);
-      } else {
-        setCategories(data || []);
-      }
-    } catch (err) {
-      console.error('Error in loadCategories:', err);
-    }
-  };
 
   const loadUsers = async () => {
     try {
@@ -359,35 +342,8 @@ const {
         // Clear transactions using service
         await clearAllTransactions();
 
-        // Clear categories and re-add defaults
-        await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
         // Clear role permissions and reset to defaults
         await supabase.from('role_permissions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-        // Re-add default categories with sort order
-        const defaultCategories = [
-          { name: 'Balance From Last Month', type: 'income', sort_order: 1 },
-          { name: 'Direct Orkid', type: 'income', sort_order: 2 },
-          { name: 'Direct Melur', type: 'income', sort_order: 3 },
-          { name: 'Direct Cempaka', type: 'income', sort_order: 4 },
-          { name: 'Asrap', type: 'income', sort_order: 5 },
-          { name: 'Warung Zul', type: 'income', sort_order: 6 },
-          { name: 'Gerai Kak Zura', type: 'income', sort_order: 7 },
-          { name: 'Gerai Fafau', type: 'income', sort_order: 8 },
-          { name: 'Delivery', type: 'income', sort_order: 9 },
-          { name: 'Bawang Besar', type: 'expense', sort_order: 1 },
-          { name: 'Bawang Kecil', type: 'expense', sort_order: 2 },
-          { name: 'Bawang Rose', type: 'expense', sort_order: 3 },
-          { name: 'Minyak', type: 'expense', sort_order: 4 },
-          { name: 'Tepung', type: 'expense', sort_order: 5 },
-          { name: 'Packaging Orkid', type: 'expense', sort_order: 6 },
-          { name: 'Container Sambal Orkid', type: 'expense', sort_order: 7 },
-          { name: 'Ayien Withdraw', type: 'expense', sort_order: 8 },
-          { name: 'Ayien Own Expenses', type: 'expense', sort_order: 9 }
-        ];
-
-        await supabase.from('categories').insert(defaultCategories);
 
         // Reload data
         await loadOtherData();
@@ -500,154 +456,6 @@ const {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       await deleteTransaction(id);
-    }
-  };
-
-  const addCategory = async () => {
-    if (!newCategory.trim()) return;
-
-    try {
-      // Get the highest sort_order for this category type
-      const categoriesOfType = categories.filter(c => c.type === categoryType);
-      const maxSortOrder = categoriesOfType.length > 0
-        ? Math.max(...categoriesOfType.map(c => c.sort_order || 0))
-        : 0;
-
-      const { error } = await supabase
-        .from('categories')
-        .insert([{
-          name: newCategory,
-          type: categoryType,
-          sort_order: maxSortOrder + 1
-        }]);
-
-      if (error) throw error;
-      await loadCategories();
-      setNewCategory('');
-    } catch (error) {
-      console.error('Error adding category:', error);
-      alert('Error adding category. Please try again.');
-    }
-  };
-
-  const removeCategory = async (categoryName, categoryType) => {
-    if (window.confirm(`Are you sure you want to delete the category "${categoryName}"?`)) {
-      try {
-        const { error } = await supabase
-          .from('categories')
-          .delete()
-          .eq('name', categoryName)
-          .eq('type', categoryType);
-
-        if (error) throw error;
-        await loadCategories();
-      } catch (error) {
-        console.error('Error removing category:', error);
-        alert('Error removing category. Please try again.');
-      }
-    }
-  };
-
-  const startEditCategory = (category, type) => {
-    setEditingCategory({ category, type });
-    setEditCategoryValue(category);
-  };
-
-  const saveEditCategory = async () => {
-    if (!editCategoryValue.trim() || !editingCategory) return;
-    const oldCategory = editingCategory.category;
-    const newCategoryName = editCategoryValue.trim();
-
-    try {
-      // Update category name
-      const { error: categoryError } = await supabase
-        .from('categories')
-        .update({ name: newCategoryName })
-        .eq('name', oldCategory)
-        .eq('type', editingCategory.type);
-
-      if (categoryError) throw categoryError;
-
-      // Update transactions with old category name
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .update({ category: newCategoryName })
-        .eq('category', oldCategory);
-
-      if (transactionError) throw transactionError;
-
-      await Promise.all([loadCategories()]);
-      setEditingCategory(null);
-      setEditCategoryValue('');
-    } catch (error) {
-      console.error('Error updating category:', error);
-      alert('Error updating category. Please try again.');
-    }
-  };
-
-  const cancelEditCategory = () => {
-    setEditingCategory(null);
-    setEditCategoryValue('');
-  };
-
-  // Category sorting functions
-  const moveCategoryUp = async (categoryName, categoryType) => {
-    const categoriesOfType = categories.filter(c => c.type === categoryType);
-    const currentIndex = categoriesOfType.findIndex(c => c.name === categoryName);
-
-    if (currentIndex <= 0) return; // Already at the top
-
-    const currentCategory = categoriesOfType[currentIndex];
-    const previousCategory = categoriesOfType[currentIndex - 1];
-
-    try {
-      // Swap sort_order values
-      await supabase
-        .from('categories')
-        .update({ sort_order: previousCategory.sort_order })
-        .eq('name', currentCategory.name)
-        .eq('type', currentCategory.type);
-
-      await supabase
-        .from('categories')
-        .update({ sort_order: currentCategory.sort_order })
-        .eq('name', previousCategory.name)
-        .eq('type', previousCategory.type);
-
-      await loadCategories();
-    } catch (error) {
-      console.error('Error moving category up:', error);
-      alert('Error reordering category. Please try again.');
-    }
-  };
-
-  const moveCategoryDown = async (categoryName, categoryType) => {
-    const categoriesOfType = categories.filter(c => c.type === categoryType);
-    const currentIndex = categoriesOfType.findIndex(c => c.name === categoryName);
-
-    if (currentIndex >= categoriesOfType.length - 1) return; // Already at the bottom
-
-    const currentCategory = categoriesOfType[currentIndex];
-    const nextCategory = categoriesOfType[currentIndex + 1];
-
-    try {
-      // Swap sort_order values
-      await supabase
-        .from('categories')
-        .update({ sort_order: nextCategory.sort_order })
-        .eq('name', currentCategory.name)
-        .eq('type', currentCategory.type);
-
-      await supabase
-        .from('categories')
-        .update({ sort_order: currentCategory.sort_order })
-        .eq('name', nextCategory.name)
-        .eq('type', nextCategory.type);
-
-      await loadCategories();
-    } catch (error) {
-      console.error('Error moving category down:', error);
-      alert('Error reordering category. Please try again.');
     }
   };
 
@@ -812,13 +620,10 @@ const {
 
   const filteredTransactions = getFilteredTransactions();
   const filteredOrders = getFilteredOrders();
-  // 🎉 NEW: Simplified calculations using utility functions
-  //const totals = calculateTransactionTotals(filteredTransactions);
-  //const { income, expenses, balance, cashBalance, onlineBalance, onlinePayments, cashTotal, ayienSpending, balanceFromLastMonth, onlineIncomeOnly, onlineExpenses, balanceFromLastMonthCash, cashIncomeOnly, cashExpenses, deliveryFees } = totals;
-  const allCategories = categories.map(c => c.name);
-  const incomeCategories = categories.filter(c => c.type === 'income').map(c => c.name);
-  const expenseCategories = categories.filter(c => c.type === 'expense').map(c => c.name);
-  //const currentCategories = formData.type === 'income' ? incomeCategories : expenseCategories;
+
+  const allCategories = getCategoryNames();
+  //const incomeCategories = getCategoryNames('income');
+  //const expenseCategories = getCategoryNames('expense');
 
   if (loading) {
     return (
@@ -877,18 +682,21 @@ const {
     />
   );
 
+  const CategoriesTabWrapper = () => (
+    <CategoriesTab
+        openCategoryModal={openCategoryModal}
+    />
+  );
+
   // ADMIN COMPONENT
   const AdminTabWrapper = () => (
     <AdminTab
       currentUser={currentUser}
       users={users}
       transactions={transactions}
-      incomeCategories={incomeCategories}
-      expenseCategories={expenseCategories}
       hasPermission={hasPermission}
       openUserModal={openUserModal}
       openAccessModal={openAccessModal}
-      openCategoryModal={openCategoryModal}
       exportBackup={exportBackup}
       importBackup={importBackup}
       clearAllData={clearAllData}
@@ -916,6 +724,7 @@ const {
                 (tab.id === 'dashboard' && hasPermission('dashboard', 'viewDashboard')) ||
                 (tab.id === 'transactions' && hasPermission('transactions', 'viewTransactions')) ||
                 (tab.id === 'orders' && hasPermission('orders', 'viewOrders')) ||
+                (tab.id === 'categories' && hasPermission('transactions', 'viewTransactions')) ||
                 (tab.id === 'admin' && hasPermission('admin', 'viewAdmin'));
 
               if (!canViewTab) return null;
@@ -963,6 +772,8 @@ const {
               <p className="text-sm text-gray-600">
                 {activeTab === 'dashboard' && 'Business overview and analytics'}
                 {activeTab === 'transactions' && 'Manage your income and expenses'}
+                {activeTab === 'orders' && 'Manage your order'}
+                {activeTab === 'categories' && 'Manage your categories'}
                 {activeTab === 'admin' && 'System settings and user management'}
               </p>
             </div>
@@ -987,6 +798,7 @@ const {
           {activeTab === 'dashboard' && <DashboardTabWrapper />}
           {activeTab === 'orders' && <OrdersTabWrapper />}
           {activeTab === 'transactions' && <TransactionsTabWrapper />}
+          {activeTab === 'categories' && <CategoriesTabWrapper />}
           {activeTab === 'admin' && <AdminTabWrapper />}
         </div>
       </div>
@@ -1031,21 +843,6 @@ const {
       <CategoryModal
         isOpen={showCategoryManager}
         onClose={closeCategoryModal}
-        categories={categories}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        categoryType={categoryType}
-        setCategoryType={setCategoryType}
-        editingCategory={editingCategory}
-        editCategoryValue={editCategoryValue}
-        setEditCategoryValue={setEditCategoryValue}
-        addCategory={addCategory}
-        removeCategory={removeCategory}
-        startEditCategory={startEditCategory}
-        saveEditCategory={saveEditCategory}
-        cancelEditCategory={cancelEditCategory}
-        moveCategoryUp={moveCategoryUp}
-        moveCategoryDown={moveCategoryDown}
       />
 
       {/* Transaction Form Modal */}

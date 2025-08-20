@@ -8,12 +8,9 @@ const AdminTab = ({
   currentUser,
   users,
   transactions,
-  incomeCategories,
-  expenseCategories,
   hasPermission,
   openUserModal,
   openAccessModal,
-  openCategoryModal,
   exportBackup,
   importBackup,
   clearAllData
@@ -48,7 +45,7 @@ const AdminTab = ({
             )}
             {!hasPermission('admin', 'manageUser') && !hasPermission('admin', 'manageAccess') && (
               <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
-                👀 View-only access
+                👁️ View-only access
               </div>
             )}
           </div>
@@ -79,36 +76,6 @@ const AdminTab = ({
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Category Management */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Category Management</h3>
-        <button
-          onClick={() => openCategoryModal()}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors"
-        >
-          <Settings className="h-4 w-4" />
-          Manage Categories
-        </button>
-        <div className="mt-4 grid md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium text-green-700 mb-2">Income Categories ({incomeCategories.length})</p>
-            <div className="bg-green-50 rounded-lg p-3 max-h-50 overflow-y-auto">
-              <div className="text-sm text-green-800 space-y-1">
-                {incomeCategories.map(cat => <div key={cat}>• {cat}</div>)}
-              </div>
-            </div>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-red-700 mb-2">Expense Categories ({expenseCategories.length})</p>
-            <div className="bg-red-50 rounded-lg p-3 max-h-50 overflow-y-auto">
-              <div className="text-sm text-red-800 space-y-1">
-                {expenseCategories.map(cat => <div key={cat}>• {cat}</div>)}
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -150,7 +117,6 @@ const AdminTab = ({
             <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded-lg">
               <p><strong>Data Status:</strong></p>
               <p>• Transactions: {transactions.length}</p>
-              <p>• Categories: {incomeCategories.length + expenseCategories.length}</p>
               <p>• Users: {users.length}</p>
               <p>• Storage: Cloud Database (Supabase)</p>
               <p>• Your Role: <span className="font-medium text-blue-600">{currentUser.role}</span></p>
