@@ -20,6 +20,9 @@ const OrderModal = ({
     remarks: ''
   });
 
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+
   // Update form when editing order changes
   useEffect(() => {
     if (editingOrder) {
@@ -51,22 +54,35 @@ const OrderModal = ({
     }
   }, [editingOrder]);
 
-  const handleSubmit = () => {
-    console.log('🔍 Order form data:', orderFormData);
-    console.log('🔍 Validation check:');
-    console.log('  - Name:', orderFormData.name, 'Valid:', !!orderFormData.name);
-    console.log('  - Set:', orderFormData.set, 'Valid:', !!orderFormData.set);
-    console.log('  - Quantity:', orderFormData.quantity, 'Valid:', !!orderFormData.quantity);
-    console.log('  - Time:', orderFormData.time, 'Valid:', !!orderFormData.time);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     if (!orderFormData.name || !orderFormData.set || !orderFormData.quantity || !orderFormData.time) {
-      alert('Please fill in all required fields');
-      return;
-    }
+         alert('Please fill in all required fields');
+         return;
+       }
 
-    console.log('✅ Validation passed, submitting order');
-    onSubmit(orderFormData);
-    onClose();
+    try {
+      await onSubmit(orderFormData);
+
+      // Show success message inside modal
+      const message = editingOrder
+        ? `✅ Order updated successfully!`
+        : `🎉 Order added successfully!`;
+
+      setSuccessMessage(message);
+      setShowSuccess(true);
+
+      // Auto-close after 2 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSuccessMessage('');
+        onClose();
+      }, 2000);
+
+    } catch (error) {
+      alert('❌ Error saving order. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
@@ -77,6 +93,17 @@ const OrderModal = ({
         <h2 className="text-xl font-bold mb-4">
           {editingOrder ? 'Edit Order' : 'Add New Order'}
         </h2>
+        {/* ADD THIS - Simple success message without formData references */}
+        {showSuccess && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <p className="text-green-800 font-medium text-center">{successMessage}</p>
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name *</label>

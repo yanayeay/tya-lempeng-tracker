@@ -228,20 +228,13 @@ const {
       if (editingOrder) {
         const { error } = await supabase.from('orders').update(orderData).eq('id', editingOrder.id);
         if (error) throw error;
-
-        //simple success message for update order
-        alert(`✅ Order updated successfully!\nCustomer: ${orderFormData.name}`);
-
       } else {
         const { error } = await supabase.from('orders').insert([orderData]);
         if (error) throw error;
-
-        //Simple success message for new order
-        alert(`🎉 Order added successfully!\nCustomer: ${orderFormData.name}\nSet: ${orderFormData.set}`);
       }
 
       await loadOrders();
-      closeOrderModal();
+      //closeOrderModal();
 
     } catch (error) {
       console.error('❌ Error saving order:', error);
