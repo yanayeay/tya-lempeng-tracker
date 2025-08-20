@@ -51,6 +51,16 @@ const TransactionModal = ({
   // Reset success state when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
+      // Reset form data when modal closes
+      setFormData({
+        type: 'income',
+        amount: '',
+        quantity: '1',
+        category: '',
+        description: '',
+        paymentMethod: 'online',
+        date: new Date().toISOString().split('T')[0]
+      });
       setShowSuccess(false);
       setSuccessMessage('');
       setIsSubmitting(false);
