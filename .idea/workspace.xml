@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/modals/TransactionModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/modals/TransactionModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +16,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="217">
@@ -25,10 +25,19 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/modals/TransactionModal.jsx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="617">
+            <state relative-caret-position="4743">
               <caret line="279" column="32" selection-start-line="279" selection-start-column="32" selection-end-line="279" selection-end-column="32" />
             </state>
           </provider>
@@ -65,9 +74,9 @@
       <find>handleSubmit</find>
       <find>resetForm</find>
       <find>Simplified tab access checking</find>
-      <find>handleSubmit</find>
       <find>transactionsLoading</find>
       <find>loading</find>
+      <find>Enter your credentials to access the system</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\src</dir>
@@ -106,11 +115,11 @@
         <option value="$PROJECT_DIR$/src/components/modals/index.js" />
         <option value="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" />
-        <option value="$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/UserModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/OrderModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/TransactionModal.jsx" />
         <option value="$PROJECT_DIR$/src/App.js" />
+        <option value="$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx" />
       </list>
     </option>
   </component>
@@ -126,7 +135,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -137,6 +145,11 @@
             <path>
               <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
               <item name="tya-lempeng-tracker" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tya-lempeng-tracker" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -150,7 +163,7 @@
               <item name="tya-lempeng-tracker" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="components" type="462c0819:PsiDirectoryNode" />
-              <item name="modals" type="462c0819:PsiDirectoryNode" />
+              <item name="auth" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="tya-lempeng-tracker" type="b2602c69:ProjectViewProjectNode" />
@@ -163,6 +176,7 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -171,6 +185,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\public" />
       <recent name="C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\src" />
       <recent name="C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\src\components\auth" />
     </key>
@@ -204,7 +219,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27919462" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28322148" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -403,13 +418,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="34" column="84" selection-start-line="34" selection-start-column="84" selection-end-line="34" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/calculations.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1139">
@@ -445,17 +453,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/modals/TransactionModal.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="279" column="32" selection-start-line="279" selection-start-column="32" selection-end-line="279" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
           <caret line="469" selection-start-line="469" selection-start-column="2" selection-end-line="471" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/TransactionModal.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4743">
+          <caret line="279" column="32" selection-start-line="279" selection-start-column="32" selection-end-line="279" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/auth/PasswordProtection.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="8" selection-start-line="2" selection-start-column="8" selection-end-line="2" selection-end-column="8" />
         </state>
       </provider>
     </entry>

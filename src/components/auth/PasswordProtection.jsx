@@ -1,6 +1,6 @@
 // components/auth/PasswordProtection.jsx
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import {Eye, EyeOff } from 'lucide-react';
 
 const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearError }) => {
   const [username, setUsername] = useState('');
@@ -29,10 +29,14 @@ const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearE
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-red-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-10 w-10 text-yellow-600" />
+          <div className="mx-auto w-40 h-40 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            <img
+                src="/lempeng.png"
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Tya's Lempeng Biz Tracker</h1>
+          <h1 className="text-2xl font-bold text-yellow-900">Tya's Lempeng Biz Tracker</h1>
           <p className="text-sm text-gray-500 mt-1">Enter your credentials to access the system</p>
         </div>
 
