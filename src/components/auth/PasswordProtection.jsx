@@ -27,9 +27,9 @@ const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearE
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-red-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md border-4 border-yellow-600">
         <div className="text-center mb-6">
-          <div className="mx-auto w-40 h-40 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto w-40 h-40 bg-yellow-100 rounded-full flex items-center justify-center mb-4 border-4 border-yellow-600">
             <img
                 src="/lempeng.png"
                 alt="Logo"
@@ -42,7 +42,7 @@ const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearE
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Username</label>
             <input
               type="text"
               value={username}
@@ -55,7 +55,7 @@ const PasswordProtection = ({ onAuthenticated, loading, error, onLogin, onClearE
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-base font-medium text-gray-700 mb-2">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
