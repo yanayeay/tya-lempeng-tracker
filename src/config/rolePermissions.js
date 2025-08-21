@@ -10,6 +10,10 @@ export const DEFAULT_ROLE_PERMISSIONS = {
       viewOrders: true, addOrder: true, editOrder: true,
       deleteOrder: true, filterOrder: true, exportOrderCSV: true
     },
+    categories: {
+      viewCategories: true, addCategories: true, editCategories: true,
+      deleteCategories: true
+    },
     admin: {
       viewAdmin: true, manageUser: true, manageAccess: true,
       backupData: true, importBackup: true, clearAllData: true
@@ -24,6 +28,10 @@ export const DEFAULT_ROLE_PERMISSIONS = {
     orders: {
       viewOrders: true, addOrder: true, editOrder: true,
       deleteOrder: false, filterOrder: true, exportOrderCSV: true
+    },
+    categories: {
+      viewCategories: true, addCategories: true, editCategories: true,
+      deleteCategories: true
     },
     admin: {
       viewAdmin: true, manageUser: false, manageAccess: false,
@@ -40,6 +48,10 @@ export const DEFAULT_ROLE_PERMISSIONS = {
       viewOrders: true, addOrder: true, editOrder: false,
       deleteOrder: false, filterOrder: true, exportOrderCSV: false
     },
+    categories: {
+          viewCategories: false, addCategories: false, editCategories: false,
+          deleteCategories: false
+    },
     admin: {
       viewAdmin: false, manageUser: false, manageAccess: false,
       backupData: false, importBackup: false, clearAllData: false
@@ -53,5 +65,6 @@ export const PERMISSION_CATEGORIES = {
   dashboard: 'Dashboard',
   transactions: 'Transactions',
   orders: 'Orders',
+  categories: 'Categories',
   admin: 'Administration'
 };

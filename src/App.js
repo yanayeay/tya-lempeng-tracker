@@ -685,6 +685,7 @@ const {
   const CategoriesTabWrapper = () => (
     <CategoriesTab
         openCategoryModal={openCategoryModal}
+        hasPermission={hasPermission}
     />
   );
 
@@ -724,7 +725,7 @@ const {
                 (tab.id === 'dashboard' && hasPermission('dashboard', 'viewDashboard')) ||
                 (tab.id === 'transactions' && hasPermission('transactions', 'viewTransactions')) ||
                 (tab.id === 'orders' && hasPermission('orders', 'viewOrders')) ||
-                (tab.id === 'categories' && hasPermission('transactions', 'viewTransactions')) ||
+                (tab.id === 'categories' && hasPermission('categories', 'viewCategories')) ||
                 (tab.id === 'admin' && hasPermission('admin', 'viewAdmin'));
 
               if (!canViewTab) return null;
@@ -843,6 +844,7 @@ const {
       <CategoryModal
         isOpen={showCategoryManager}
         onClose={closeCategoryModal}
+        hasPermission={hasPermission}
       />
 
       {/* Transaction Form Modal */}

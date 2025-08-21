@@ -2,11 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/tabs/AdminTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/AdminTab.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/tabs/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/tabs.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/tabs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config/rolePermissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/rolePermissions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/usePermissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/usePermissions.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils/permissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/permissions.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,53 +25,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/components/tabs/index.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="59" selection-start-line="5" selection-start-column="59" selection-end-line="5" selection-end-column="59" />
+            <state relative-caret-position="268">
+              <caret line="727" column="93" selection-start-line="727" selection-start-column="93" selection-end-line="727" selection-end-column="93" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx">
+        <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="125" column="62" selection-start-line="125" selection-start-column="62" selection-end-line="125" selection-end-column="62" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/hooks/useCategories.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1035">
-              <caret line="129" column="2" selection-start-line="129" selection-start-column="2" selection-end-line="129" selection-end-column="2" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/services/categoryService.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="253" column="2" selection-start-line="253" selection-start-column="2" selection-end-line="253" selection-end-column="2" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/components/modals/CategoryModal.jsx">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
+            <state relative-caret-position="141">
+              <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -78,18 +44,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>{editingOrder ? 'Edit Order' : 'Add New Order'}</find>
-      <find>const handleOrderSubmit = async (orderFormData) =&gt; {</find>
-      <find>editing or</find>
-      <find>editing</find>
-      <find>{editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}</find>
-      <find>handleSubmit</find>
-      <find>resetForm</find>
-      <find>Simplified tab access checking</find>
-      <find>transactionsLoading</find>
-      <find>loading</find>
-      <find>Enter your credentials to access the system</find>
-      <find>closeTransactionModal</find>
       <find>if (!isOpen)</find>
       <find>const [categories, setCategories] = useState([]);</find>
       <find>const loadOtherData = useCallback(async</find>
@@ -99,15 +53,27 @@
       <find>useCategories</find>
       <find>tab</find>
       <find>activeTab</find>
-      <find>checkTabAccess</find>
-      <find>category</find>
       <find>closeCategoryModal</find>
       <find>activeTab</find>
       <find>DashboardTabWrapper</find>
-      <find>getDefaultTab</find>
-      <find>active</find>
       <find>CategoriesTabWrapper</find>
       <find>const CategoriesTabWrapper = () =&gt;</find>
+      <find>Income Categories</find>
+      <find>CategoriesTab</find>
+      <find>active</find>
+      <find>CategoryModal</find>
+      <find>canAdd</find>
+      <find>CategoriesTab</find>
+      <find>canManageCategories</find>
+      <find>PERMISSION_CATEGORIES</find>
+      <find>FinanceTracker</find>
+      <find>canViewTab</find>
+      <find>category</find>
+      <find>DashboardTab</find>
+      <find>CategoriesTabWrapper</find>
+      <find>checkTabAccess</find>
+      <find>getDefaultTab</find>
+      <find>tab.id</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\src</dir>
@@ -129,16 +95,12 @@
         <option value="$PROJECT_DIR$/src/services/transactionService.js" />
         <option value="$PROJECT_DIR$/src/hooks/useTransactions.js" />
         <option value="$PROJECT_DIR$/src/utils/calculations.js" />
-        <option value="$PROJECT_DIR$/src/config/rolePermissions.js" />
         <option value="$PROJECT_DIR$/src/services/permissionService.js" />
-        <option value="$PROJECT_DIR$/src/hooks/usePermissions.js" />
         <option value="$PROJECT_DIR$/src/hooks/useModal.js" />
         <option value="$USER_HOME$/Backup Tya Lempeng/tya-lempeng-tracker/src/App.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" />
-        <option value="$PROJECT_DIR$/src/components/modals/index.js" />
-        <option value="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/UserModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/OrderModal.jsx" />
         <option value="$PROJECT_DIR$/public/index.html" />
@@ -148,13 +110,17 @@
         <option value="$PROJECT_DIR$/src/components/modals/TransactionModal.jsx" />
         <option value="$PROJECT_DIR$/src/services/categoryService.js" />
         <option value="$PROJECT_DIR$/src/hooks/useCategories.js" />
-        <option value="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" />
-        <option value="$PROJECT_DIR$/src/utils/permissions.js" />
-        <option value="$PROJECT_DIR$/src/config/tabs.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/AdminTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/tabs/index.js" />
-        <option value="$PROJECT_DIR$/src/App.js" />
+        <option value="$PROJECT_DIR$/src/components/modals/index.js" />
+        <option value="$PROJECT_DIR$/src/config/tabs.js" />
+        <option value="$PROJECT_DIR$/src/config/rolePermissions.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx" />
+        <option value="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" />
+        <option value="$PROJECT_DIR$/src/hooks/usePermissions.js" />
+        <option value="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" />
+        <option value="$PROJECT_DIR$/src/App.js" />
+        <option value="$PROJECT_DIR$/src/utils/permissions.js" />
       </list>
     </option>
   </component>
@@ -248,7 +214,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$USER_HOME$/Backup Tya Lempeng/tya-lempeng-tracker/src/App.js" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../App.js" />
     <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
   </component>
   <component name="RecentsManager">
@@ -368,24 +334,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/config/rolePermissions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="56" column="2" selection-start-line="56" selection-start-column="2" selection-end-line="56" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/services/permissionService.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="644">
           <caret line="161" column="2" selection-start-line="161" selection-start-column="2" selection-end-line="161" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/hooks/usePermissions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="134" column="19" selection-start-line="134" selection-start-column="4" selection-end-line="134" selection-end-column="19" />
         </state>
       </provider>
     </entry>
@@ -402,45 +354,10 @@
     <entry file="file://$PROJECT_DIR$/src/index.css">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="259" column="25" selection-start-line="259" selection-start-column="25" selection-end-line="259" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Backup Tya Lempeng/tya-lempeng-tracker/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1772">
           <caret line="2864" column="6" lean-forward="true" selection-start-line="2864" selection-start-column="6" selection-end-line="2864" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="91" selection-start-line="9" selection-start-column="91" selection-end-line="9" selection-end-column="91" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" column="13" lean-forward="true" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/modals/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="50" selection-start-line="8" selection-start-column="50" selection-end-line="8" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/modals/AccessModal.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1989">
-          <caret column="26" selection-start-column="26" selection-end-column="26" />
         </state>
       </provider>
     </entry>
@@ -507,30 +424,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="30" column="96" selection-start-line="30" selection-start-column="96" selection-end-line="30" selection-end-column="96" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/AdminTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="150" column="24" selection-start-line="150" selection-start-column="24" selection-end-line="150" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/config/tabs.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="57" selection-start-line="1" selection-start-column="57" selection-end-line="1" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/hooks/useCategories.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1035">
+        <state relative-caret-position="2193">
           <caret line="129" column="2" selection-start-line="129" selection-start-column="2" selection-end-line="129" selection-end-column="2" />
         </state>
       </provider>
@@ -542,13 +438,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/modals/CategoryModal.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="12" selection-start-line="1" selection-start-column="12" selection-end-line="1" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/tabs/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -556,17 +445,101 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App.js">
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
+        <state relative-caret-position="-3790">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="259" column="25" selection-start-line="259" selection-start-column="25" selection-end-line="259" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4201">
+          <caret line="29" column="16" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/AdminTab.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="150" column="24" selection-start-line="150" selection-start-column="24" selection-end-line="150" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="58" selection-end-line="874" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/config/tabs.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="595">
+          <caret line="38" column="2" selection-start-line="38" selection-start-column="2" selection-end-line="38" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/hooks/usePermissions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="222" column="2" selection-start-line="222" selection-start-column="2" selection-end-line="222" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/config/rolePermissions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="67" column="25" selection-start-line="67" selection-start-column="25" selection-end-line="67" selection-end-column="25" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="125" column="62" selection-start-line="125" selection-start-column="62" selection-end-line="125" selection-end-column="62" />
+        <state relative-caret-position="644">
+          <caret line="247" column="29" selection-start-line="247" selection-start-column="29" selection-end-line="247" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="50" selection-start-line="8" selection-start-column="50" selection-end-line="8" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/CategoryModal.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="541" column="29" selection-start-line="541" selection-start-column="29" selection-end-line="541" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/modals/AccessModal.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="334" column="27" selection-start-line="334" selection-start-column="27" selection-end-line="334" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="268">
+          <caret line="727" column="93" selection-start-line="727" selection-start-column="93" selection-end-line="727" selection-end-column="93" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141">
+          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
         </state>
       </provider>
     </entry>
