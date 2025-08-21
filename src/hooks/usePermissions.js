@@ -89,6 +89,7 @@ export const usePermissions = () => {
     if (hasPermission(userRole, 'dashboard', 'viewDashboard')) tabs.push('dashboard');
     if (hasPermission(userRole, 'transactions', 'viewTransactions')) tabs.push('transactions');
     if (hasPermission(userRole, 'orders', 'viewOrders')) tabs.push('orders');
+    if (hasPermission(userRole, 'categories', 'viewCategories')) tabs.push('categories');
     if (hasPermission(userRole, 'admin', 'viewAdmin')) tabs.push('admin');
 
     return tabs;
@@ -100,13 +101,14 @@ export const usePermissions = () => {
    * @returns {string|null} Default tab ID or null
    */
   const getDefaultTab = (userRole) => {
-    const priorities = ['dashboard', 'transactions', 'orders', 'admin'];
+    const priorities = ['dashboard', 'transactions', 'orders', 'categories', 'admin'];
 
     for (const tabId of priorities) {
       const permissions = {
         dashboard: () => hasPermission(userRole, 'dashboard', 'viewDashboard'),
         transactions: () => hasPermission(userRole, 'transactions', 'viewTransactions'),
         orders: () => hasPermission(userRole, 'orders', 'viewOrders'),
+        categories: () => hasPermission(userRole, 'categories', 'viewCategories'),
         admin: () => hasPermission(userRole, 'admin', 'viewAdmin')
       };
 
@@ -116,6 +118,70 @@ export const usePermissions = () => {
     }
 
     return null; // No accessible tabs
+  };
+
+  /**
+   * Category-specific permission helpers
+   */
+  const getCategoryPermissions = (userRole) => {
+    return {
+      canViewCategories: () => hasPermission(userRole, 'categories', 'viewCategories'),
+      canAddCategories: () => hasPermission(userRole, 'categories', 'addCategories'),
+      canEditCategories: () => hasPermission(userRole, 'categories', 'editCategories'),
+      canDeleteCategories: () => hasPermission(userRole, 'categories', 'deleteCategories'),
+      canManageCategories: () => hasPermission(userRole, 'categories', 'addCategories') || hasPermission(userRole, 'categories', 'editCategories') || hasPermission(userRole, 'categories', 'deleteCategories')
+    };
+  };
+
+  /**
+   * Transaction-specific permission helpers
+   */
+  const getTransactionPermissions = (userRole) => {
+    return {
+      canViewTransactions: () => hasPermission(userRole, 'transactions', 'viewTransactions'),
+      canAddTransaction: () => hasPermission(userRole, 'transactions', 'addTransaction'),
+      canEditTransaction: () => hasPermission(userRole, 'transactions', 'editTransaction'),
+      canDeleteTransaction: () => hasPermission(userRole, 'transactions', 'deleteTransaction'),
+      canFilterTransaction: () => hasPermission(userRole, 'transactions', 'filterTransaction'),
+      canExportCSV: () => hasPermission(userRole, 'transactions', 'exportCSV')
+    };
+  };
+
+  /**
+   * Order-specific permission helpers
+   */
+  const getOrderPermissions = (userRole) => {
+    return {
+      canViewOrders: () => hasPermission(userRole, 'orders', 'viewOrders'),
+      canAddOrder: () => hasPermission(userRole, 'orders', 'addOrder'),
+      canEditOrder: () => hasPermission(userRole, 'orders', 'editOrder'),
+      canDeleteOrder: () => hasPermission(userRole, 'orders', 'deleteOrder'),
+      canFilterOrder: () => hasPermission(userRole, 'orders', 'filterOrder'),
+      canExportOrderCSV: () => hasPermission(userRole, 'orders', 'exportOrderCSV')
+    };
+  };
+
+  /**
+   * Admin-specific permission helpers
+   */
+  const getAdminPermissions = (userRole) => {
+    return {
+      canViewAdmin: () => hasPermission(userRole, 'admin', 'viewAdmin'),
+      canManageUser: () => hasPermission(userRole, 'admin', 'manageUser'),
+      canManageAccess: () => hasPermission(userRole, 'admin', 'manageAccess'),
+      canBackupData: () => hasPermission(userRole, 'admin', 'backupData'),
+      canImportBackup: () => hasPermission(userRole, 'admin', 'importBackup'),
+      canClearAllData: () => hasPermission(userRole, 'admin', 'clearAllData')
+    };
+  };
+
+  /**
+   * Dashboard-specific permission helpers
+   */
+  const getDashboardPermissions = (userRole) => {
+    return {
+      canViewDashboard: () => hasPermission(userRole, 'dashboard', 'viewDashboard')
+    };
   };
 
   /**
@@ -145,6 +211,13 @@ export const usePermissions = () => {
     hasPermission,
     getRolePermissions,
     getAccessibleTabs,
-    getDefaultTab
+    getDefaultTab,
+
+    // Permission helpers by category
+    getCategoryPermissions,
+    getTransactionPermissions,
+    getOrderPermissions,
+    getAdminPermissions,
+    getDashboardPermissions
   };
 };

@@ -2,7 +2,8 @@ import React from 'react';
 import {
   BarChart3,
   CreditCard,
-  Shield
+  Shield,
+  Tag
 } from 'lucide-react';
 
 const AccessModal = ({
@@ -52,7 +53,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.dashboard?.viewDashboard || false}
-                  onChange={(e) => updateRolePermission('dashboard', 'viewDashboard', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'dashboard', 'viewDashboard', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">View Dashboard Page</span>
@@ -71,7 +72,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.viewTransactions || false}
-                  onChange={(e) => updateRolePermission('transactions', 'viewTransactions', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'viewTransactions', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">View Transaction Page</span>
@@ -80,7 +81,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.addTransaction || false}
-                  onChange={(e) => updateRolePermission('transactions', 'addTransaction', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'addTransaction', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Add Transaction</span>
@@ -89,7 +90,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.editTransaction || false}
-                  onChange={(e) => updateRolePermission('transactions', 'editTransaction', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'editTransaction', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Edit Transaction</span>
@@ -98,7 +99,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.deleteTransaction || false}
-                  onChange={(e) => updateRolePermission('transactions', 'deleteTransaction', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'deleteTransaction', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Delete Transaction</span>
@@ -107,7 +108,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.filterTransaction || false}
-                  onChange={(e) => updateRolePermission('transactions', 'filterTransaction', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'filterTransaction', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Filter Transaction</span>
@@ -116,7 +117,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.transactions?.exportCSV || false}
-                  onChange={(e) => updateRolePermission('transactions', 'exportCSV', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'transactions', 'exportCSV', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Export CSV</span>
@@ -135,7 +136,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.viewOrders || false}
-                  onChange={(e) => updateRolePermission('orders', 'viewOrders', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'viewOrders', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">View Orders Page</span>
@@ -144,7 +145,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.addOrder || false}
-                  onChange={(e) => updateRolePermission('orders', 'addOrder', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'addOrder', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Add Order</span>
@@ -153,7 +154,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.editOrder || false}
-                  onChange={(e) => updateRolePermission('orders', 'editOrder', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'editOrder', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Edit Order</span>
@@ -162,7 +163,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.deleteOrder || false}
-                  onChange={(e) => updateRolePermission('orders', 'deleteOrder', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'deleteOrder', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Delete Order</span>
@@ -171,7 +172,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.filterOrder || false}
-                  onChange={(e) => updateRolePermission('orders', 'filterOrder', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'filterOrder', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Filter Orders</span>
@@ -180,10 +181,56 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.orders?.exportOrderCSV || false}
-                  onChange={(e) => updateRolePermission('orders', 'exportOrderCSV', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'orders', 'exportOrderCSV', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Export Orders CSV</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Category Permissions - NEW SECTION */}
+          <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
+            <h4 className="font-semibold text-purple-700 mb-3 flex items-center gap-2">
+              <Tag className="h-5 w-5" />
+              Category Permissions
+            </h4>
+            <div className="grid md:grid-cols-2 gap-3">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={rolePermissions[selectedRole]?.categories?.viewCategories || false}
+                  onChange={(e) => updateRolePermission(selectedRole, 'categories', 'viewCategories', e.target.checked)}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium">View Categories</span>
+              </label>
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={rolePermissions[selectedRole]?.categories?.addCategories || false}
+                  onChange={(e) => updateRolePermission(selectedRole, 'categories', 'addCategories', e.target.checked)}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium">Add Categories</span>
+              </label>
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={rolePermissions[selectedRole]?.categories?.editCategories || false}
+                  onChange={(e) => updateRolePermission(selectedRole, 'categories', 'editCategories', e.target.checked)}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium">Edit Categories</span>
+              </label>
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={rolePermissions[selectedRole]?.categories?.deleteCategories || false}
+                  onChange={(e) => updateRolePermission(selectedRole, 'categories', 'deleteCategories', e.target.checked)}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium">Delete Categories</span>
               </label>
             </div>
           </div>
@@ -199,7 +246,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.viewAdmin || false}
-                  onChange={(e) => updateRolePermission('admin', 'viewAdmin', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'viewAdmin', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">View Admin Page</span>
@@ -208,7 +255,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.manageUser || false}
-                  onChange={(e) => updateRolePermission('admin', 'manageUser', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'manageUser', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Manage User</span>
@@ -217,7 +264,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.manageAccess || false}
-                  onChange={(e) => updateRolePermission('admin', 'manageAccess', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'manageAccess', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Manage Access</span>
@@ -226,7 +273,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.backupData || false}
-                  onChange={(e) => updateRolePermission('admin', 'backupData', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'backupData', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Backup Data</span>
@@ -235,7 +282,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.importBackup || false}
-                  onChange={(e) => updateRolePermission('admin', 'importBackup', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'importBackup', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Import Backup</span>
@@ -244,7 +291,7 @@ const AccessModal = ({
                 <input
                   type="checkbox"
                   checked={rolePermissions[selectedRole]?.admin?.clearAllData || false}
-                  onChange={(e) => updateRolePermission('admin', 'clearAllData', e.target.checked)}
+                  onChange={(e) => updateRolePermission(selectedRole, 'admin', 'clearAllData', e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
                 <span className="text-sm font-medium">Clear All Data</span>
@@ -261,6 +308,7 @@ const AccessModal = ({
               <strong>Dashboard:</strong> {Object.values(rolePermissions[selectedRole]?.dashboard || {}).filter(Boolean).length} permission(s) •
               <strong> Transactions:</strong> {Object.values(rolePermissions[selectedRole]?.transactions || {}).filter(Boolean).length} permission(s) •
               <strong> Orders:</strong> {Object.values(rolePermissions[selectedRole]?.orders || {}).filter(Boolean).length} permission(s) •
+              <strong> Categories:</strong> {Object.values(rolePermissions[selectedRole]?.categories || {}).filter(Boolean).length} permission(s) •
               <strong> Admin:</strong> {Object.values(rolePermissions[selectedRole]?.admin || {}).filter(Boolean).length} permission(s)
             </p>
           </div>

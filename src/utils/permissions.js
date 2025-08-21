@@ -11,7 +11,7 @@ export const checkTabAccess = (activeTab, hasPermissionFn) => {
     dashboard: () => hasPermissionFn('dashboard', 'viewDashboard'),
     transactions: () => hasPermissionFn('transactions', 'viewTransactions'),
     orders: () => hasPermissionFn('orders', 'viewOrders'),
-    categories: () => hasPermissionFn('transactions', 'viewTransactions'),
+    categories: () => hasPermissionFn('categories', 'viewCategories'),
     admin: () => hasPermissionFn('admin', 'viewAdmin')
   };
 
@@ -28,7 +28,7 @@ export const getAccessibleTabs = (hasPermissionFn) => {
     { id: 'dashboard', permission: () => hasPermissionFn('dashboard', 'viewDashboard') },
     { id: 'transactions', permission: () => hasPermissionFn('transactions', 'viewTransactions') },
     { id: 'orders', permission: () => hasPermissionFn('orders', 'viewOrders') },
-    { id: 'categories', permission: () => hasPermissionFn('transactions', 'viewTransactions') },
+    { id: 'categories', permission: () => hasPermissionFn('categories', 'viewCategories') },
     { id: 'admin', permission: () => hasPermissionFn('admin', 'viewAdmin') }
   ];
 
@@ -41,7 +41,7 @@ export const getAccessibleTabs = (hasPermissionFn) => {
  * @returns {string|null} Default tab ID or null
  */
 export const getDefaultTab = (hasPermissionFn) => {
-  const priorities = ['dashboard', 'transactions', 'orders','categories', 'admin'];
+  const priorities = ['dashboard', 'transactions', 'orders','categories','admin'];
 
   for (const tabId of priorities) {
     if (checkTabAccess(tabId, hasPermissionFn)) {
