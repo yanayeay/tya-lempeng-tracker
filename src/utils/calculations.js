@@ -1,6 +1,78 @@
 // utils/calculations.js
 
 /**
+ * Filter transactions by period
+ * @param {Array} transactions - Array of transactions
+ * @param {string} filterType - 'all', 'monthly', 'yearly'
+ * @param {number} selectedYear - Year to filter by
+ * @param {number} selectedMonth - Month to filter by (0-11)
+ * @returns {Array} Filtered transactions
+ */
+export const filterTransactionsByPeriod = (transactions = [], filterType, selectedYear, selectedMonth) => {
+  if (filterType === 'all') {
+    return transactions;
+  }
+
+  return transactions.filter(transaction => {
+    const transactionDate = new Date(transaction.date);
+    const transactionYear = transactionDate.getFullYear();
+    const transactionMonth = transactionDate.getMonth();
+
+    if (filterType === 'yearly') {
+      return transactionYear === selectedYear;
+    }
+
+    if (filterType === 'monthly') {
+      return transactionYear === selectedYear && transactionMonth === selectedMonth;
+    }
+
+    return true;
+  });
+};
+
+/**
+ * Get date range for a given period
+ * @param {string} filterType - 'all', 'monthly', 'yearly'
+ * @param {number} selectedYear - Year
+ * @param {number} selectedMonth - Month (0-11)
+ * @returns {Object} Date range object with start and end dates
+ */
+export const getDateRangeForPeriod = (filterType, selectedYear, selectedMonth) => {
+  const now = new Date();
+
+  if (filterType === 'all') {
+    return {
+      start: new Date(2020, 0, 1), // Default start date
+      end: now,
+      description: 'All Time'
+    };
+  }
+
+  if (filterType === 'yearly') {
+    return {
+      start: new Date(selectedYear, 0, 1),
+      end: new Date(selectedYear, 11, 31),
+      description: `Year ${selectedYear}`
+    };
+  }
+
+  if (filterType === 'monthly') {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    return {
+      start: new Date(selectedYear, selectedMonth, 1),
+      end: new Date(selectedYear, selectedMonth + 1, 0), // Last day of month
+      description: `${monthNames[selectedMonth]} ${selectedYear}`
+    };
+  }
+
+  return { start: now, end: now, description: 'Unknown Period' };
+};
+
+/**
  * Calculate comprehensive financial totals from transaction list
  * @param {Array} transactionList - Array of transactions
  * @returns {Object} Financial summary object
@@ -129,4 +201,119 @@ export const calculateOrdersData = (transactions = []) => {
   return Object.entries(ordersByCategory)
     .map(([category, qty]) => ({ category, quantity: qty }))
     .sort((a, b) => b.quantity - a.quantity);
+};
+
+/**
+ * Calculate period comparison data
+ * @param {Array} transactions - Array of all transactions
+ * @param {string} filterType - Current filter type
+ * @param {number} selectedYear - Current year
+ * @param {number} selectedMonth - Current month
+ * @returns {Object} Comparison data with current vs previous period
+ */
+export const calculatePeriodComparison = (transactions, filterType, selectedYear, selectedMonth) => {
+  // Current period data
+  const currentPeriodTransactions = filterTransactionsByPeriod(transactions, filterType, selectedYear, selectedMonth);
+  const currentTotals = calculateTransactionTotals(currentPeriodTransactions);
+
+  // Previous period data
+  let previousPeriodTransactions = [];
+
+  if (filterType === 'monthly') {
+    const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
+    const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
+    previousPeriodTransactions = filterTransactionsByPeriod(transactions, 'monthly', prevYear, prevMonth);
+  } else if (filterType === 'yearly') {
+    previousPeriodTransactions = filterTransactionsByPeriod(transactions, 'yearly', selectedYear - 1, 0);
+  }
+
+  const previousTotals = calculateTransactionTotals(previousPeriodTransactions);
+
+  // Calculate changes
+  const calculateChange = (current, previous) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / Math.abs(previous)) * 100;
+  };
+
+  return {
+    current: currentTotals,
+    previous: previousTotals,
+    changes: {
+      income: calculateChange(currentTotals.income, previousTotals.income),
+      expenses: calculateChange(currentTotals.expenses, previousTotals.expenses),
+      balance: calculateChange(currentTotals.balance, previousTotals.balance),
+      transactions: calculateChange(currentPeriodTransactions.length, previousPeriodTransactions.length)
+    }
+  };
+};
+
+/**
+ * Get available periods from transactions
+ * @param {Array} transactions - Array of transactions
+ * @returns {Object} Available years and months
+ */
+export const getAvailablePeriods = (transactions = []) => {
+  if (!transactions.length) {
+    const currentYear = new Date().getFullYear();
+    return {
+      years: [currentYear],
+      monthsByYear: { [currentYear]: [new Date().getMonth()] }
+    };
+  }
+
+  const periods = new Map();
+
+  transactions.forEach(transaction => {
+    const date = new Date(transaction.date);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    if (!periods.has(year)) {
+      periods.set(year, new Set());
+    }
+    periods.get(year).add(month);
+  });
+
+  const years = Array.from(periods.keys()).sort((a, b) => b - a);
+  const monthsByYear = {};
+
+  years.forEach(year => {
+    monthsByYear[year] = Array.from(periods.get(year)).sort((a, b) => b - a);
+  });
+
+  return { years, monthsByYear };
+};
+
+/**
+ * Format currency for display
+ * @param {number} amount - Amount to format
+ * @param {string} currency - Currency symbol (default: 'RM')
+ * @returns {string} Formatted currency string
+ */
+export const formatCurrency = (amount, currency = 'RM') => {
+  return `${currency} ${amount.toFixed(2)}`;
+};
+
+/**
+ * Calculate growth rate between two values
+ * @param {number} current - Current period value
+ * @param {number} previous - Previous period value
+ * @returns {Object} Growth rate object with percentage and direction
+ */
+export const calculateGrowthRate = (current, previous) => {
+  if (previous === 0) {
+    return {
+      percentage: current > 0 ? 100 : 0,
+      direction: current > 0 ? 'up' : 'neutral',
+      isPositive: current >= 0
+    };
+  }
+
+  const percentage = ((current - previous) / Math.abs(previous)) * 100;
+
+  return {
+    percentage: Math.abs(percentage),
+    direction: percentage > 0 ? 'up' : percentage < 0 ? 'down' : 'neutral',
+    isPositive: percentage >= 0
+  };
 };

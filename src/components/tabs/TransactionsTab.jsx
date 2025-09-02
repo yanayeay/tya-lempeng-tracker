@@ -74,15 +74,15 @@ const TransactionsTab = ({
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-700">RM {income.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-green-700">RM {income.toFixed(2)}</p>
             <p className="text-sm text-green-600">Total Sales</p>
           </div>
           <div className="text-center p-3 bg-red-50 rounded-lg">
-            <p className="text-2xl font-bold text-red-700">RM {expenses.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-red-700">RM {expenses.toFixed(2)}</p>
             <p className="text-sm text-red-600">Business Expenses</p>
           </div>
           <div className="text-center p-3 bg-yellow-50 rounded-lg">
-            <p className="text-2xl font-bold text-yellow-700">RM {balance.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-yellow-700">RM {balance.toFixed(2)}</p>
             <p className="text-sm text-yellow-600">Net Balance</p>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">

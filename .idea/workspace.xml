@@ -3,13 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/CategoriesTab.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/rolePermissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/rolePermissions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/usePermissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/usePermissions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/permissions.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/permissions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/calculations.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/calculations.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,10 +27,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
+        <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
-              <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
+            <state relative-caret-position="644">
+              <caret line="526" column="28" selection-start-line="526" selection-start-column="28" selection-end-line="526" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/utils/calculations.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3194">
+              <caret line="318" column="2" selection-start-line="318" selection-start-column="2" selection-end-line="318" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -94,12 +98,10 @@
         <option value="$PROJECT_DIR$/src/components/auth/index.js" />
         <option value="$PROJECT_DIR$/src/services/transactionService.js" />
         <option value="$PROJECT_DIR$/src/hooks/useTransactions.js" />
-        <option value="$PROJECT_DIR$/src/utils/calculations.js" />
         <option value="$PROJECT_DIR$/src/services/permissionService.js" />
         <option value="$PROJECT_DIR$/src/hooks/useModal.js" />
         <option value="$USER_HOME$/Backup Tya Lempeng/tya-lempeng-tracker/src/App.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx" />
-        <option value="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/UserModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/OrderModal.jsx" />
@@ -121,6 +123,8 @@
         <option value="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" />
         <option value="$PROJECT_DIR$/src/App.js" />
         <option value="$PROJECT_DIR$/src/utils/permissions.js" />
+        <option value="$PROJECT_DIR$/src/utils/calculations.js" />
+        <option value="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" />
       </list>
     </option>
   </component>
@@ -136,7 +140,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -210,6 +213,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -253,7 +257,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2872483" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.29127517" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -361,13 +365,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/calculations.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1139">
-          <caret line="17" column="40" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/modals/UserModal.jsx">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="324">
@@ -459,13 +456,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4201">
-          <caret line="29" column="16" selection-start-line="29" selection-start-column="16" selection-end-line="29" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/tabs/AdminTab.jsx">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="576">
@@ -529,6 +519,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141">
+          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="268">
@@ -536,10 +533,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/permissions.js">
+    <entry file="file://$PROJECT_DIR$/src/utils/calculations.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="13" column="37" selection-start-line="13" selection-start-column="37" selection-end-line="13" selection-end-column="37" />
+        <state relative-caret-position="3194">
+          <caret line="318" column="2" selection-start-line="318" selection-start-column="2" selection-end-line="318" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="526" column="28" selection-start-line="526" selection-start-column="28" selection-end-line="526" selection-end-column="28" />
         </state>
       </provider>
     </entry>
