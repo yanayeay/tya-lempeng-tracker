@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6ebae71a-bdc0-4639-b93d-e0842cca6e18" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/calculations.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/calculations.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,20 +16,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="727" column="93" selection-start-line="727" selection-start-column="93" selection-end-line="727" selection-end-column="93" />
+            <state relative-caret-position="217">
+              <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="26" selection-end-column="6" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="526" column="28" selection-start-line="526" selection-start-column="28" selection-end-line="526" selection-end-column="28" />
+            <state relative-caret-position="442">
+              <caret line="272" column="76" selection-start-line="272" selection-start-column="76" selection-end-line="272" selection-end-column="85" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="33" column="79" selection-start-line="33" selection-start-column="79" selection-end-line="33" selection-end-column="79" />
             </state>
           </provider>
         </entry>
@@ -58,7 +66,6 @@
       <find>tab</find>
       <find>activeTab</find>
       <find>closeCategoryModal</find>
-      <find>activeTab</find>
       <find>DashboardTabWrapper</find>
       <find>CategoriesTabWrapper</find>
       <find>const CategoriesTabWrapper = () =&gt;</find>
@@ -67,17 +74,18 @@
       <find>active</find>
       <find>CategoryModal</find>
       <find>canAdd</find>
-      <find>CategoriesTab</find>
       <find>canManageCategories</find>
       <find>PERMISSION_CATEGORIES</find>
       <find>FinanceTracker</find>
       <find>canViewTab</find>
       <find>category</find>
       <find>DashboardTab</find>
-      <find>CategoriesTabWrapper</find>
       <find>checkTabAccess</find>
       <find>getDefaultTab</find>
       <find>tab.id</find>
+      <find>toFixed</find>
+      <find>getCurrentMonth</find>
+      <find>filter</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\User-pc\tya-lempeng-tracker\tya-lempeng-tracker\src</dir>
@@ -102,7 +110,6 @@
         <option value="$PROJECT_DIR$/src/hooks/useModal.js" />
         <option value="$USER_HOME$/Backup Tya Lempeng/tya-lempeng-tracker/src/App.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx" />
-        <option value="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/UserModal.jsx" />
         <option value="$PROJECT_DIR$/src/components/modals/OrderModal.jsx" />
         <option value="$PROJECT_DIR$/public/index.html" />
@@ -121,10 +128,11 @@
         <option value="$PROJECT_DIR$/src/components/modals/AccessModal.jsx" />
         <option value="$PROJECT_DIR$/src/hooks/usePermissions.js" />
         <option value="$PROJECT_DIR$/src/components/modals/CategoryModal.jsx" />
-        <option value="$PROJECT_DIR$/src/App.js" />
         <option value="$PROJECT_DIR$/src/utils/permissions.js" />
         <option value="$PROJECT_DIR$/src/utils/calculations.js" />
         <option value="$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx" />
+        <option value="$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx" />
+        <option value="$PROJECT_DIR$/src/App.js" />
       </list>
     </option>
   </component>
@@ -442,13 +450,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3790">
-          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/tabs/OrdersTab.jsx">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="576">
@@ -526,13 +527,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/App.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="727" column="93" selection-start-line="727" selection-start-column="93" selection-end-line="727" selection-end-column="93" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils/calculations.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3194">
@@ -542,8 +536,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/tabs/DashboardTab.jsx">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="526" column="28" selection-start-line="526" selection-start-column="28" selection-end-line="526" selection-end-column="28" />
+        <state relative-caret-position="442">
+          <caret line="272" column="76" selection-start-line="272" selection-start-column="76" selection-end-line="272" selection-end-column="85" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/tabs/TransactionsTab.jsx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="33" column="79" selection-start-line="33" selection-start-column="79" selection-end-line="33" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/App.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="26" selection-end-column="6" />
         </state>
       </provider>
     </entry>

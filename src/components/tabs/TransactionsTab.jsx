@@ -30,6 +30,8 @@ const TransactionsTab = ({
   // Calculate totals for quick stats
   const totals = calculateTransactionTotals(filteredTransactions);
   const { income, expenses, balance } = totals;
+  console.log('Filters applied:', filters);
+  console.log('Filtered transactions:', filteredTransactions.map(t => t.date));
 
   return (
     <div className="space-y-6">

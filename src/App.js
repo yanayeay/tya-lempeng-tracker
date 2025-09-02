@@ -17,18 +17,44 @@ import { DashboardTab, TransactionsTab, OrdersTab, AdminTab, CategoriesTab } fro
 
 
 const FinanceTracker = ({ onLogout, currentUser }) => {
-  // Use permission hook instead of managing state manually
-const {
-  rolePermissions,
-  loading: permissionsLoading,
-  hasPermission: checkUserPermission,
-  updateRolePermission
-} = usePermissions();
 
-  // Create permission checker function for current user
-  const hasPermission = useCallback((category, permission) => {
-    return checkUserPermission(currentUser?.role, category, permission);
-  }, [checkUserPermission, currentUser?.role]);
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-11 (January = 0)
+
+    // First day of current month
+    //const startDate = new Date(year, month, 1);
+
+    // Last day of current month
+    const endDate = new Date(year, month + 1, 0);
+
+    // Manual formatting to avoid timezone issues
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const fromDate = `${year}-${pad(month + 1)}-01`; // Always day 01
+    const toDate = `${year}-${pad(month + 1)}-${pad(endDate.getDate())}`; // Last day of month
+
+    console.log('CORRECTED Filter range:', fromDate, 'to', toDate);
+
+    return {
+      from: fromDate,
+      to: toDate
+    };
+  };
+
+  // Use permission hook instead of managing state manually
+  const {
+    rolePermissions,
+    loading: permissionsLoading,
+    hasPermission: checkUserPermission,
+    updateRolePermission
+  } = usePermissions();
+
+   // Create permission checker function for current user
+   const hasPermission = useCallback((category, permission) => {
+     return checkUserPermission(currentUser?.role, category, permission);
+   }, [checkUserPermission, currentUser?.role]);
 
   const {
    // States - ALL of these should be included
@@ -59,15 +85,18 @@ const {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filter states
+  // Filter states - DEFAULT TO CURRENT MONTH
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    dateFrom: '',
-    dateTo: '',
-    categories: [],
-    types: [],
-    paymentMethods: [],
-    searchText: ''
+  const [filters, setFilters] = useState(() => {
+    const monthRange = getCurrentMonthRange();
+    return {
+      dateFrom: monthRange.from,
+      dateTo: monthRange.to,
+      categories: [],
+      types: [],
+      paymentMethods: [],
+      searchText: ''
+    };
   });
 
   // Category management states
@@ -231,8 +260,10 @@ const {
   };
 
   // Transaction Filter functions
+  // Replace your existing applyFilters function with this corrected version:
   const applyFilters = (transactionList) => {
     return transactionList.filter(transaction => {
+      // Fix: Use proper date comparison
       if (filters.dateFrom && transaction.date < filters.dateFrom) return false;
       if (filters.dateTo && transaction.date > filters.dateTo) return false;
       if (filters.categories.length > 0 && !filters.categories.includes(transaction.category)) return false;
@@ -252,8 +283,14 @@ const {
   const getFilteredTransactions = () => applyFilters(transactions);
 
   const resetFilters = () => {
+    const monthRange = getCurrentMonthRange();
     setFilters({
-      dateFrom: '', dateTo: '', categories: [], types: [], paymentMethods: [], searchText: ''
+      dateFrom: monthRange.from,
+      dateTo: monthRange.to,
+      categories: [],
+      types: [],
+      paymentMethods: [],
+      searchText: ''
     });
   };
 
