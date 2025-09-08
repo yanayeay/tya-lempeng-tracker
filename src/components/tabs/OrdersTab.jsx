@@ -4,7 +4,9 @@ import {
   Edit3,
   Trash2,
   Filter,
-  X
+  X,
+  Truck,
+  Clock
 } from 'lucide-react';
 
 const OrdersTab = ({
@@ -52,7 +54,9 @@ const OrdersTab = ({
             </button>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+
+        {/* Enhanced Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <p className="text-2xl font-bold text-blue-700">{filteredOrders.length}</p>
             <p className="text-sm text-blue-600">Total Orders</p>
@@ -64,6 +68,14 @@ const OrdersTab = ({
           <div className="text-center p-3 bg-yellow-50 rounded-lg">
             <p className="text-2xl font-bold text-yellow-700">{filteredOrders.filter(o => o.payment_status === 'Unpaid').length}</p>
             <p className="text-sm text-yellow-600">Pending Payment</p>
+          </div>
+          <div className="text-center p-3 bg-emerald-50 rounded-lg">
+            <p className="text-2xl font-bold text-emerald-700">{filteredOrders.filter(o => o.delivery_status === 'Delivered').length}</p>
+            <p className="text-sm text-emerald-600">Delivered</p>
+          </div>
+          <div className="text-center p-3 bg-orange-50 rounded-lg">
+            <p className="text-2xl font-bold text-orange-700">{filteredOrders.filter(o => o.delivery_status === 'Not yet delivered').length}</p>
+            <p className="text-sm text-orange-600">Pending Delivery</p>
           </div>
         </div>
       </div>
@@ -128,6 +140,23 @@ const OrdersTab = ({
                 ))}
               </div>
             </div>
+            {/* NEW: Delivery Status Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Status</label>
+              <div className="space-y-2">
+                {['Delivered', 'Not yet delivered'].map(status => (
+                  <label key={status} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={orderFilters.deliveryStatus.includes(status)}
+                      onChange={() => toggleOrderArrayFilter('deliveryStatus', status)}
+                      className="mr-2 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm">{status}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="flex gap-3 mt-4">
             <button onClick={resetOrderFilters} className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
@@ -180,10 +209,45 @@ const OrdersTab = ({
                       <div className="flex items-center gap-3 mb-3">
                         <div className={`w-3 h-3 rounded-full ${order.payment_status === 'Paid' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                         <h4 className="font-semibold text-lg text-gray-900">{order.name}</h4>
+
+                        {/* NEW: Delivery Status Pills */}
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            order.payment_status === 'Paid'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.payment_status}
+                          </span>
+
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
+                            order.delivery_status === 'Delivered'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-orange-100 text-orange-800'
+                          }`}>
+                            {order.delivery_status === 'Delivered' ? (
+                              <>
+                                <Truck className="h-3 w-3" />
+                                Delivered
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3 w-3" />
+                                Not yet delivered
+                              </>
+                            )}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
                         <div className="space-y-2">
+                          {order.contact_no && (
+                            <div>
+                              <span className="font-medium text-gray-700">Contact No:</span>
+                              <span className="ml-2 text-gray-900">{order.contact_no}</span>
+                            </div>
+                          )}
                           <div>
                             <span className="font-medium text-gray-700">Lempeng Set:</span>
                             <span className="ml-2 text-gray-900">{order.set}</span>
@@ -232,9 +296,6 @@ const OrdersTab = ({
                     </div>
 
                     <div className="flex items-center gap-3 ml-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${order.payment_status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {order.payment_status}
-                      </span>
                       {hasPermission('orders', 'editOrder') && (
                         <button onClick={() => handleEditOrder(order)} className="text-yellow-600 hover:text-yellow-800" title="Edit Order">
                           <Edit3 className="h-4 w-4" />

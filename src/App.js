@@ -125,6 +125,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     dateTo: '',
     sets: [],
     paymentStatus: [],
+    deliveryStatus: [],
     searchText: ''
   });
 
@@ -213,6 +214,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
     const orderData = {
       name: orderFormData.name,
+      contact_no: orderFormData.contactNo || null,
       order_date: orderFormData.orderDate,
       delivery_date: orderFormData.deliveryDate || null,
       set: orderFormData.set,
@@ -221,6 +223,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       delivery: orderFormData.delivery,
       delivery_address: orderFormData.deliveryAddress || null,
       payment_status: orderFormData.paymentStatus,
+      delivery_status: orderFormData.deliveryStatus,
       remarks: orderFormData.remarks
     };
 
@@ -325,6 +328,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       if (orderFilters.dateTo && order.order_date > orderFilters.dateTo) return false;
       if (orderFilters.sets.length > 0 && !orderFilters.sets.includes(order.set)) return false;
       if (orderFilters.paymentStatus.length > 0 && !orderFilters.paymentStatus.includes(order.payment_status)) return false;
+      if (orderFilters.deliveryStatus.length > 0 && !orderFilters.deliveryStatus.includes(order.delivery_status)) return false;
       if (orderFilters.searchText) {
         const searchLower = orderFilters.searchText.toLowerCase();
         const matchesName = order.name?.toLowerCase().includes(searchLower);
@@ -341,7 +345,12 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
 
   const resetOrderFilters = () => {
     setOrderFilters({
-      dateFrom: '', dateTo: '', sets: [], paymentStatus: [], searchText: ''
+      dateFrom: '',
+      dateTo: '',
+      sets: [],
+      paymentStatus: [],
+      deliveryStatus: [],
+      searchText: ''
     });
   };
 
@@ -363,6 +372,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
     if (orderFilters.dateFrom || orderFilters.dateTo) count++;
     if (orderFilters.sets.length > 0) count++;
     if (orderFilters.paymentStatus.length > 0) count++;
+    if (orderFilters.deliveryStatus.length > 0) count++;
     if (orderFilters.searchText) count++;
     return count;
   };
@@ -627,12 +637,25 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   };
 
   const exportOrdersToCSV = () => {
-    const headers = ['Order Date', 'Customer Name', 'Set', 'Quantity', 'Time', 'Delivery Date', 'Delivery', 'Delivery Address', 'Payment Status', 'Remarks'];
+    const headers = [
+        'Order Date',
+        'Customer Name',
+        'Contact No',
+        'Set', 'Quantity',
+        'Time',
+        'Delivery Date',
+        'Delivery',
+        'Delivery Address',
+        'Payment Status',
+        'Delivery Status',
+        'Remarks'
+    ];
     const csvContent = [
       headers.join(','),
       ...filteredOrders.map(o => [
         o.order_date,
         `"${o.name}"`,
+        `"${o.contact_no || ''}"`,
         o.set,
         o.quantity,
         o.time,
@@ -640,6 +663,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         o.delivery ? 'Yes' : 'No',
         `"${o.delivery_address || ''}"`,
         o.payment_status,
+        o.delivery_status || 'Not yet delivered',
         `"${o.remarks || ''}"`
       ].join(','))
     ].join('\n');
