@@ -6,7 +6,8 @@ import {
   Filter,
   X,
   Truck,
-  Clock
+  Clock,
+  Car
 } from 'lucide-react';
 
 const OrdersTab = ({
@@ -229,6 +230,11 @@ const OrdersTab = ({
                               <>
                                 <Truck className="h-3 w-3" />
                                 Delivered
+                              </>
+                            ) : order.delivery_status === 'Not yet pickup' ? (
+                              <>
+                                <Car className="h-3 w-3" />
+                                Not yet pickup
                               </>
                             ) : (
                               <>
