@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Truck, Clock } from 'lucide-react';
+import { X, Truck, Clock, Car } from 'lucide-react';
 
 const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
   // All state variables defined at the top
@@ -7,11 +7,12 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
     name: '',
     contactNo: '',
     orderDate: new Date().toISOString().split('T')[0],
+    pickupDate: '', // NEW: Pickup date for self pickup
     deliveryDate: '',
     set: '',
     quantity: '1',
     time: '',
-    delivery: false,
+    deliveryType: 'selfPickup', // NEW: 'selfPickup' or 'delivery'
     deliveryAddress: '',
     paymentStatus: 'Unpaid',
     deliveryStatus: 'Not yet delivered',
@@ -31,11 +32,12 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
           name: editingOrder.name || '',
           contactNo: editingOrder.contact_no || '',
           orderDate: editingOrder.order_date || new Date().toISOString().split('T')[0],
+          pickupDate: editingOrder.pickup_date || '', // NEW: Load existing pickup date
           deliveryDate: editingOrder.delivery_date || '',
           set: editingOrder.set || '',
           quantity: editingOrder.quantity?.toString() || '1',
           time: editingOrder.time || '',
-          delivery: editingOrder.delivery || false,
+          deliveryType: editingOrder.delivery ? 'delivery' : 'selfPickup', // Convert boolean to string
           deliveryAddress: editingOrder.delivery_address || '',
           paymentStatus: editingOrder.payment_status || 'Unpaid',
           deliveryStatus: editingOrder.delivery_status || 'Not yet delivered',
@@ -46,11 +48,12 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
           name: '',
           contactNo: '',
           orderDate: new Date().toISOString().split('T')[0],
+          pickupDate: '', // NEW: Default empty pickup date
           deliveryDate: '',
           set: '',
           quantity: '1',
           time: '',
-          delivery: false,
+          deliveryType: 'selfPickup', // Default to self pickup
           deliveryAddress: '',
           paymentStatus: 'Unpaid',
           deliveryStatus: 'Not yet delivered',
@@ -160,7 +163,7 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
           {/* Order Details */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Details</h3>
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Order Date *
@@ -204,6 +207,14 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
                   required
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Delivery Information */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery Information</h3>
+            <div className="space-y-4">
+              {/* Time Field - Now in Delivery Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Time *
@@ -216,26 +227,60 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
                   required
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Delivery Information */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delivery Information</h3>
-            <div className="space-y-4">
+              {/* Delivery Type Radio Buttons */}
               <div>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={formData.delivery}
-                    onChange={(e) => handleInputChange('delivery', e.target.checked)}
-                    className="mr-2 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Delivery Required</span>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Delivery Type *
                 </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="selfPickup"
+                      checked={formData.deliveryType === 'selfPickup'}
+                      onChange={(e) => handleInputChange('deliveryType', e.target.value)}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      🚗 Self Pickup
+                    </span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="delivery"
+                      checked={formData.deliveryType === 'delivery'}
+                      onChange={(e) => handleInputChange('deliveryType', e.target.value)}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      🚚 Delivery Required
+                    </span>
+                  </label>
+                </div>
               </div>
 
-              {formData.delivery && (
+              {/* Pickup Details - Only show when self pickup is selected */}
+              {formData.deliveryType === 'selfPickup' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pickup Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.pickupDate}
+                    onChange={(e) => handleInputChange('pickupDate', e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="Select pickup date"
+                  />
+                </div>
+              )}
+
+              {/* Delivery Details - Only show when delivery is selected */}
+              {formData.deliveryType === 'delivery' && (
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -266,7 +311,7 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
               {/* Delivery Status Radio Buttons */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Delivery Status *
+                  Status *
                 </label>
                 <div className="flex gap-6">
                   <label className="flex items-center">
@@ -283,6 +328,20 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
                       Not yet delivered
                     </span>
                   </label>
+                  <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="deliveryStatus"
+                        value="Not yet pickup"
+                        checked={formData.deliveryStatus === 'Not yet pickup'}
+                        onChange={(e) => handleInputChange('deliveryStatus', e.target.value)}
+                        className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                      />
+                      <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <Car className="h-4 w-4 text-orange-600" />
+                        Not yet pickup
+                      </span>
+                    </label>
                   <label className="flex items-center">
                     <input
                       type="radio"

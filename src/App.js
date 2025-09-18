@@ -21,10 +21,7 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
   const getCurrentMonthRange = () => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = now.getMonth(); // 0-11 (January = 0)
-
-    // First day of current month
-    //const startDate = new Date(year, month, 1);
+    const month = now.getMonth();
 
     // Last day of current month
     const endDate = new Date(year, month + 1, 0);
@@ -216,11 +213,13 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
       name: orderFormData.name,
       contact_no: orderFormData.contactNo || null,
       order_date: orderFormData.orderDate,
+      pickup_date: orderFormData.pickupDate || null,
       delivery_date: orderFormData.deliveryDate || null,
       set: orderFormData.set,
       quantity: parseInt(orderFormData.quantity),
       time: orderFormData.time,
-      delivery: orderFormData.delivery,
+      delivery: orderFormData.deliveryType === 'delivery',
+      delivery_type: orderFormData.deliveryType,
       delivery_address: orderFormData.deliveryAddress || null,
       payment_status: orderFormData.paymentStatus,
       delivery_status: orderFormData.deliveryStatus,
@@ -643,8 +642,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         'Contact No',
         'Set', 'Quantity',
         'Time',
+        'Delivery Type',
+        'Pickup Date',
         'Delivery Date',
-        'Delivery',
         'Delivery Address',
         'Payment Status',
         'Delivery Status',
@@ -659,8 +659,9 @@ const FinanceTracker = ({ onLogout, currentUser }) => {
         o.set,
         o.quantity,
         o.time,
+        o.pickup_date || '',
         o.delivery_date || '',
-        o.delivery ? 'Yes' : 'No',
+        o.delivery_type || (o.delivery ? 'delivery' : 'selfPickup'),
         `"${o.delivery_address || ''}"`,
         o.payment_status,
         o.delivery_status || 'Not yet delivered',
