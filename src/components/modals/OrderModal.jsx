@@ -12,7 +12,7 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
     set: '',
     quantity: '1',
     time: '',
-    deliveryType: 'selfPickup', // NEW: 'selfPickup' or 'delivery'
+    deliveryType: 'delivery', // NEW: 'selfPickup' or 'delivery'
     deliveryAddress: '',
     paymentStatus: 'Unpaid',
     deliveryStatus: 'Not yet delivered',
@@ -53,7 +53,7 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
           set: '',
           quantity: '1',
           time: '',
-          deliveryType: 'selfPickup', // Default to self pickup
+          deliveryType: 'delivery', // Default to self pickup
           deliveryAddress: '',
           paymentStatus: 'Unpaid',
           deliveryStatus: 'Not yet delivered',
@@ -234,6 +234,18 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
                   Delivery Type *
                 </label>
                 <div className="flex gap-6">
+                <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="deliveryType"
+                      value="delivery"
+                      checked={formData.deliveryType === 'delivery'}
+                      onChange={(e) => handleInputChange('deliveryType', e.target.value)}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"/>
+                    <span className="text-sm font-medium text-gray-700">
+                      🚚 Delivery Required
+                    </span>
+                  </label>
                   <label className="flex items-center">
                     <input
                       type="radio"
@@ -241,25 +253,12 @@ const OrderModal = ({ isOpen, onClose, editingOrder, onSubmit }) => {
                       value="selfPickup"
                       checked={formData.deliveryType === 'selfPickup'}
                       onChange={(e) => handleInputChange('deliveryType', e.target.value)}
-                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"/>
                     <span className="text-sm font-medium text-gray-700">
                       🚗 Self Pickup
                     </span>
                   </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="deliveryType"
-                      value="delivery"
-                      checked={formData.deliveryType === 'delivery'}
-                      onChange={(e) => handleInputChange('deliveryType', e.target.value)}
-                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      🚚 Delivery Required
-                    </span>
-                  </label>
+
                 </div>
               </div>
 
